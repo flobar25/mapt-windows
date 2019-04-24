@@ -1,0 +1,2 @@
+ofxImageSequenceRecorder
+ofxMidi
