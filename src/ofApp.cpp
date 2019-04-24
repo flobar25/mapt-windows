@@ -25,6 +25,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    cam.begin();
+    cam.end();
     
     // capture the image if recording is started
     // this can slow down the rendering by a lot, so be aware of the framerate...
