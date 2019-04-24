@@ -27,7 +27,8 @@ void ofApp::update(){
 void ofApp::draw(){
     
     // capture the image if recording is started
-    // this can slow down the rendering by a lot, so be aware of the framerate
+    // this can slow down the rendering by a lot, so be aware of the framerate...
+    // if frames are skipped this is going to mess up the rendering when imported as a video
     if (recording){
         screenCapture.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
         recorder.addFrame(screenCapture);
@@ -35,10 +36,13 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
+void ofApp::keyPressed(int key) {
     switch (key) {
         case 'r':
             toggleRecording();
+            break;
+        case 'p':
+            captureScreen();
             break;
         default:
             break;
@@ -47,6 +51,11 @@ void ofApp::keyPressed(int key){
 
 void ofApp::newMidiMessage(ofxMidiMessage& eventArgs){
     
+}
+
+void ofApp::captureScreen(){
+    screenCapture.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
+    screenCapture.save("captures/capture.bmp");
 }
 
 //--------------------------------------------------------------

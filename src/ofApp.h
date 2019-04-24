@@ -14,6 +14,7 @@ public:
     
     // recording
     void toggleRecording();
+    void captureScreen();
     
     // MIDI
     void newMidiMessage(ofxMidiMessage& eventArgs);
