@@ -1,2 +1,4 @@
 ofxImageSequenceRecorder
+ofxKinect
 ofxMidi
+ofxOpenCv

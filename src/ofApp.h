@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxMidi.h"
 #include "ofxImageSequenceRecorder.h"
+#include "ofxKinect.h"
+#include "ofxOpenCv.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
     
@@ -18,6 +20,15 @@ public:
     
     // MIDI
     void newMidiMessage(ofxMidiMessage& eventArgs);
+    
+    // kinect
+    void initKinect();
+    void toggleKinectCapture();
+    void updateKinect();
+    void drawKinect();
+    
+    // Debug
+    void toggleDebugMode();
     
     void keyPressed(int key);
     void keyReleased(int key);
@@ -44,4 +55,12 @@ private:
     ofxImageSequenceRecorder recorder;
     Boolean recording;
     ofImage screenCapture;
+    
+    // kinect
+    ofxKinect kinect;
+    int nearThreshold;
+    int farThreshold;
+    ofxCvGrayscaleImage grayImage; // grayscale depth image
+    ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
+    ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
 };
