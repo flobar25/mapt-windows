@@ -23,9 +23,11 @@ public:
     
     // kinect
     void initKinect();
-    void toggleKinectCapture();
+    void toggleKinect();
     void updateKinect();
     void drawKinect();
+    void toggleKinectRecording();
+    void toggleKinectPlayer();
     
     // Debug
     void toggleDebugMode();
@@ -55,6 +57,9 @@ private:
     ofxImageSequenceRecorder recorder;
     Boolean recording;
     ofImage screenCapture;
+    
+    // kinect recording
+    ofxImageSequenceRecorder kinectRecorder;
     
     // kinect
     ofxKinect kinect;

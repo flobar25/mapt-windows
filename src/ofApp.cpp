@@ -2,14 +2,24 @@
 
 bool debugMode = false;
 bool kinectActive = false;
+bool kinectRecordingActive = false;
+bool kinectPlayerActive;
+int kinectWidth = 640;
+int kinectHeight = 480;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     // recorder
-    recorder.setPrefix(ofToDataPath("recording/frame_"));
+    recorder.setPrefix(ofToDataPath("recording/render/frame_"));
     recorder.setFormat("bmp");
     recorder.setNumberWidth(8);
     recorder.startThread();
+    
+    kinectRecorder.setPrefix(ofToDataPath("recording/kinect/frame_"));
+    kinectRecorder.setFormat("png");
+    kinectRecorder.setNumberWidth(8);
+    kinectRecorder.startThread();
+
     ofSetFrameRate(30);
     
     // midi
@@ -23,6 +33,8 @@ void ofApp::setup(){
 void ofApp::exit(){
     recorder.waitForThread();
     recorder.stopThread();
+    kinectRecorder.waitForThread();
+    kinectRecorder.stopThread();
 }
 
 //--------------------------------------------------------------
@@ -51,6 +63,14 @@ void ofApp::draw(){
         screenCapture.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
         recorder.addFrame(screenCapture);
     }
+    
+    if (kinectRecordingActive) {
+        ofShortPixels pixelsRaw = kinect.getRawDepthPixels();
+        ofShortImage image;
+        image.setFromPixels(kinect.getRawDepthPixels());
+        image.save(ofToDataPath("recording/kinect/frame_00000000.bmp"));
+        //kinectRecorder.addFrame(image);
+    }
 }
 
 //--------------------------------------------------------------
@@ -63,7 +83,13 @@ void ofApp::keyPressed(int key) {
             captureScreen();
             break;
         case 'k':
-            toggleKinectCapture();
+            toggleKinect();
+            break;
+        case 'l':
+            toggleKinectRecording();
+            break;
+        case 'm':
+            toggleKinectPlayer();
             break;
         default:
             break;
@@ -99,24 +125,6 @@ void ofApp::initKinect(){
 void ofApp::updateKinect() {
     if (kinectActive){
         kinect.update();
-        
-        // there is a new frame and we are connected
-        if(kinect.isFrameNew()) {
-            
-            // load grayscale depth image from the kinect source
-            grayImage.setFromPixels(kinect.getDepthPixels());
-            
-            // we do two thresholds - one for the far plane and one for the near plane
-            // we then do a cvAnd to get the pixels which are a union of the two thresholds
-            grayThreshNear = grayImage;
-            grayThreshFar = grayImage;
-            grayThreshNear.threshold(nearThreshold, true);
-            grayThreshFar.threshold(farThreshold);
-            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-            
-            // update the cv images
-            grayImage.flagImageChanged();
-        }
     }
 }
 
@@ -146,10 +154,50 @@ void ofApp::drawKinect() {
         ofDisableDepthTest();
         ofPopMatrix();
     }
+    
+    if (kinectPlayerActive) {
+        ofShortPixels pixels;
+        ofLoadImage(pixels, ofToDataPath("recording/kinect/frame_00000000.bmp"));
+        int w = 640;
+        int h = 480;
+        ofMesh mesh;
+        mesh.setMode(OF_PRIMITIVE_TRIANGLES);
+        int step = 2;
+        for(int y = 0; y < h; y += step) {
+            for(int x = 0; x < w; x += step) {
+                auto distance = pixels[y * w + x];
+                if((float) distance > 0 && (float) distance < 1000) {
+//                    mesh.addColor(kinect.getColorAt(x,y));
+                    mesh.addVertex(ofPoint(x, y, distance));
+                }
+            }
+        }
+        glPointSize(1);
+        ofPushMatrix();
+        // the projected points are 'upside down' and 'backwards'
+        ofScale(1, -1, -1);
+        ofTranslate(0, 0, -1000); // center the points a bit
+        ofEnableDepthTest();
+        mesh.drawVertices();
+        ofDisableDepthTest();
+        ofPopMatrix();
+    }
 }
 
-void ofApp::toggleKinectCapture(){
+void ofApp::toggleKinect(){
     kinectActive = !kinectActive;
+}
+
+void ofApp::toggleKinectRecording(){
+    kinectRecordingActive = !kinectRecordingActive;
+}
+
+void ofApp::toggleKinectPlayer(){
+    kinectPlayerActive = !kinectPlayerActive;
+    if (kinectPlayerActive){
+        kinectActive = false;
+        kinectRecordingActive = false;
+    }
 }
 
 //--------------------------------------------------------------
