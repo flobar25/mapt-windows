@@ -136,51 +136,10 @@ void ofApp::updateKinect() {
 void ofApp::drawKinect() {
     ofSetColor(255);
     
+    ofShortPixels depthPixelsRaw;
     if (kinectActive){
-//        if (kinectRecordingActive) {
-//            auto rawDepthPixels = kinect.getRawDepthPixels();
-//
-//            ofShortImage image;
-//            image.setFromPixels(rawDepthPixels);
-//            image.save(ofToDataPath("recording/kinect/frame_00000000.png"));
-//
-//            ofShortImage loadedImage;
-//            loadedImage.load("recording/kinect/frame_00000000.png");
-//            auto loadedImagePixels = loadedImage.getPixels();
-//            for(int y = 0; y < kinectHeight; y++) {
-//                for(int x = 0; x < kinectWidth; x++) {
-//                    auto value0 = image.getPixels()[y * kinectWidth + x];
-//                    auto value1 = loadedImagePixels[y * kinectWidth + x];
-//                    auto value2 = rawDepthPixels[y * kinectWidth + x];
-//                    auto value3 = kinect.getDistanceAt(x, y);
-//                    ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString(value0) + " : " +ofToString(value1) + " : " + ofToString(value2) + " : " + ofToString(value3));
-//                }
-//            }
-//        }
-        
-        
-        ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_TRIANGLES);
-        for(int y = 0; y < kinectHeight; y += kinectStep) {
-            for(int x = 0; x < kinectWidth; x += kinectStep) {
-                if(kinect.getDistanceAt(x, y) > 0 && kinect.getDistanceAt(x, y) < 1000) {
-                    mesh.addColor(kinect.getColorAt(x,y));
-                    mesh.addVertex(kinect.getWorldCoordinateAt(x, y));
-                }
-            }
-        }
-        glPointSize(1);
-        ofPushMatrix();
-        // the projected points are 'upside down' and 'backwards'
-        ofScale(1, -1, -1);
-        ofTranslate(0, 0, -1000); // center the points a bit
-        ofEnableDepthTest();
-        mesh.drawVertices();
-        ofDisableDepthTest();
-        ofPopMatrix();
-    }
-    
-    if (kinectPlayerActive) {
+        depthPixelsRaw = kinect.getRawDepthPixels();
+    } else if (kinectPlayerActive) {
         // TODO load that in memory at the beginning
         auto path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
         ofShortImage load;
@@ -189,13 +148,16 @@ void ofApp::drawKinect() {
             path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
         }
         load.load(path);
+        depthPixelsRaw = load.getPixels();
+    }
 
+    if (kinectActive || kinectPlayerActive) {
         ofMesh mesh;
         mesh.setMode(OF_PRIMITIVE_TRIANGLES);
         int step = 2;
         for(int y = 0; y < kinectHeight; y += step) {
             for(int x = 0; x < kinectWidth; x += step) {
-                auto distance = load.getPixels()[y * kinectWidth + x];
+                auto distance = depthPixelsRaw[y * kinectWidth + x];
                 if(distance > 0 && distance < 1000) {
                     mesh.addVertex(ofPoint(x, y, distance));
                 }
