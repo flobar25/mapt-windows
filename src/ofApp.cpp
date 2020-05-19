@@ -1,21 +1,29 @@
 #include "ofApp.h"
+#include <chrono>
 
 bool debugMode = false;
 bool kinectActive = false;
 bool kinectRecordingActive = false;
 bool kinectPlayerActive;
+int kinectCurrentFramePlayed = 0;
 int kinectWidth = 640;
 int kinectHeight = 480;
+int kinectStep = 2;
+int numberWidth = 8;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    
+    using namespace std::chrono;
+    milliseconds ms = duration_cast< seconds >(system_clock::now().time_since_epoch());
+    
     // recorder
-    recorder.setPrefix(ofToDataPath("recording/render/frame_"));
-    recorder.setFormat("bmp");
+    recorder.setPrefix(ofToDataPath("recording/" + ofToString(ms.count()) + "/render/frame_"));
+    recorder.setFormat("png");
     recorder.setNumberWidth(8);
     recorder.startThread();
     
-    kinectRecorder.setPrefix(ofToDataPath("recording/kinect/frame_"));
+    kinectRecorder.setPrefix(ofToDataPath("recording/" + ofToString(ms.count()) + "/kinect/frame_"));
     kinectRecorder.setFormat("png");
     kinectRecorder.setNumberWidth(8);
     kinectRecorder.startThread();
@@ -65,12 +73,9 @@ void ofApp::draw(){
     }
     
     if (kinectRecordingActive) {
-        ofShortPixels pixelsRaw = kinect.getRawDepthPixels();
-        ofShortImage image;
-        image.setFromPixels(kinect.getRawDepthPixels());
-        image.save(ofToDataPath("recording/kinect/frame_00000000.bmp"));
-        //kinectRecorder.addFrame(image);
+        kinectRecorder.addFrame(kinect.getRawDepthPixels());
     }
+    
 }
 
 //--------------------------------------------------------------
@@ -106,11 +111,11 @@ void ofApp::captureScreen(){
 }
 
 void ofApp::initKinect(){
-    kinect.setRegistration(true);
+    // kinect.setRegistration(true); -> supposed to slow down perf, so only activate if needed
     kinect.init();
     kinect.open();        // opens first available kinect
-    nearThreshold = 230;
-    farThreshold = 70;
+//    nearThreshold = 230;
+//    farThreshold = 70;
     kinect.setCameraTiltAngle(0);
     
     // print the intrinsic IR sensor values
@@ -130,14 +135,34 @@ void ofApp::updateKinect() {
 
 void ofApp::drawKinect() {
     ofSetColor(255);
+    
     if (kinectActive){
-        int w = 640;
-        int h = 480;
+//        if (kinectRecordingActive) {
+//            auto rawDepthPixels = kinect.getRawDepthPixels();
+//
+//            ofShortImage image;
+//            image.setFromPixels(rawDepthPixels);
+//            image.save(ofToDataPath("recording/kinect/frame_00000000.png"));
+//
+//            ofShortImage loadedImage;
+//            loadedImage.load("recording/kinect/frame_00000000.png");
+//            auto loadedImagePixels = loadedImage.getPixels();
+//            for(int y = 0; y < kinectHeight; y++) {
+//                for(int x = 0; x < kinectWidth; x++) {
+//                    auto value0 = image.getPixels()[y * kinectWidth + x];
+//                    auto value1 = loadedImagePixels[y * kinectWidth + x];
+//                    auto value2 = rawDepthPixels[y * kinectWidth + x];
+//                    auto value3 = kinect.getDistanceAt(x, y);
+//                    ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString(value0) + " : " +ofToString(value1) + " : " + ofToString(value2) + " : " + ofToString(value3));
+//                }
+//            }
+//        }
+        
+        
         ofMesh mesh;
         mesh.setMode(OF_PRIMITIVE_TRIANGLES);
-        int step = 2;
-        for(int y = 0; y < h; y += step) {
-            for(int x = 0; x < w; x += step) {
+        for(int y = 0; y < kinectHeight; y += kinectStep) {
+            for(int x = 0; x < kinectWidth; x += kinectStep) {
                 if(kinect.getDistanceAt(x, y) > 0 && kinect.getDistanceAt(x, y) < 1000) {
                     mesh.addColor(kinect.getColorAt(x,y));
                     mesh.addVertex(kinect.getWorldCoordinateAt(x, y));
@@ -156,18 +181,22 @@ void ofApp::drawKinect() {
     }
     
     if (kinectPlayerActive) {
-        ofShortPixels pixels;
-        ofLoadImage(pixels, ofToDataPath("recording/kinect/frame_00000000.bmp"));
-        int w = 640;
-        int h = 480;
+        // TODO load that in memory at the beginning
+        auto path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
+        ofShortImage load;
+        if (!ofFile::doesFileExist(path)){
+            kinectCurrentFramePlayed = 0;
+            path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
+        }
+        load.load(path);
+
         ofMesh mesh;
         mesh.setMode(OF_PRIMITIVE_TRIANGLES);
         int step = 2;
-        for(int y = 0; y < h; y += step) {
-            for(int x = 0; x < w; x += step) {
-                auto distance = pixels[y * w + x];
-                if((float) distance > 0 && (float) distance < 1000) {
-//                    mesh.addColor(kinect.getColorAt(x,y));
+        for(int y = 0; y < kinectHeight; y += step) {
+            for(int x = 0; x < kinectWidth; x += step) {
+                auto distance = load.getPixels()[y * kinectWidth + x];
+                if(distance > 0 && distance < 1000) {
                     mesh.addVertex(ofPoint(x, y, distance));
                 }
             }
