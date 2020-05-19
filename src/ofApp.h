@@ -29,10 +29,9 @@ public:
     void drawKinect();
     void toggleKinectRecording();
     void toggleKinectPlayer();
-    
-    // Debug
+
+
     void toggleDebugMode();
-    
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y );
@@ -56,7 +55,6 @@ private:
     
     // recording
     ofxImageSequenceRecorder recorder;
-    Boolean recording;
     ofImage screenCapture;
     
     // kinect recording
@@ -64,9 +62,6 @@ private:
     
     // kinect
     ofxKinect kinect;
-    int nearThreshold;
-    int farThreshold;
-    ofxCvGrayscaleImage grayImage; // grayscale depth image
-    ofxCvGrayscaleImage grayThreshNear; // the near thresholded image
-    ofxCvGrayscaleImage grayThreshFar; // the far thresholded image
+    
+    string debugMessage();
 };

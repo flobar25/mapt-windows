@@ -1,7 +1,8 @@
 #include "ofApp.h"
 #include <chrono>
 
-bool debugMode = false;
+bool debugMode = true;
+bool recording = false;
 bool kinectActive = false;
 bool kinectRecordingActive = false;
 bool kinectPlayerActive;
@@ -10,6 +11,7 @@ int kinectWidth = 640;
 int kinectHeight = 480;
 int kinectStep = 2;
 int numberWidth = 8;
+
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -27,7 +29,7 @@ void ofApp::setup(){
     kinectRecorder.setFormat("png");
     kinectRecorder.setNumberWidth(8);
     kinectRecorder.startThread();
-
+    
     ofSetFrameRate(30);
     
     // midi
@@ -76,25 +78,31 @@ void ofApp::draw(){
         kinectRecorder.addFrame(kinect.getRawDepthPixels());
     }
     
+    if (debugMode) {
+        ofDrawBitmapString(debugMessage(), 20, 652);
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
     switch (key) {
-        case 'r':
+        case 'q':
             toggleRecording();
             break;
-        case 'p':
+        case 'w':
             captureScreen();
             break;
-        case 'k':
+        case 'a':
             toggleKinect();
             break;
-        case 'l':
+        case 's':
             toggleKinectRecording();
             break;
-        case 'm':
+        case 'd':
             toggleKinectPlayer();
+            break;
+        case 'z':
+            toggleDebugMode();
             break;
         default:
             break;
@@ -113,9 +121,7 @@ void ofApp::captureScreen(){
 void ofApp::initKinect(){
     // kinect.setRegistration(true); -> supposed to slow down perf, so only activate if needed
     kinect.init();
-    kinect.open();        // opens first available kinect
-//    nearThreshold = 230;
-//    farThreshold = 70;
+    kinect.open();
     kinect.setCameraTiltAngle(0);
     
     // print the intrinsic IR sensor values
@@ -150,7 +156,7 @@ void ofApp::drawKinect() {
         load.load(path);
         depthPixelsRaw = load.getPixels();
     }
-
+    
     if (kinectActive || kinectPlayerActive) {
         ofMesh mesh;
         mesh.setMode(OF_PRIMITIVE_TRIANGLES);
@@ -189,6 +195,10 @@ void ofApp::toggleKinectPlayer(){
         kinectActive = false;
         kinectRecordingActive = false;
     }
+}
+
+void ofApp::toggleDebugMode() {
+    debugMode = !debugMode;
 }
 
 //--------------------------------------------------------------
@@ -245,3 +255,14 @@ void ofApp::toggleRecording(){
     recording = !recording;
 }
 
+string ofApp::debugMessage() {
+    stringstream reportStream;
+    reportStream << "q: trigger recording : " << ofToString(recording) << endl
+    << "w: screenshot" << endl
+    << "a: activate kinect : " << ofToString(kinectActive) << endl
+    << "s: trigger kinect recording " << ofToString(kinectRecordingActive) << endl
+    << "d: activate kinect player " << ofToString(kinectPlayerActive) << endl
+    << "z: toggle debug :  " << ofToString(debugMode) << endl;
+    
+    return reportStream.str();
+}
