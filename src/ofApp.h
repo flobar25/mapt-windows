@@ -4,6 +4,7 @@
 #include "ofxMidi.h"
 #include "ofxImageSequenceRecorder.h"
 #include "ofxKinectSequenceRecorder.h"
+#include "ofxKinectSequencePlayer.h"
 #include "ofxKinect.h"
 #include "ofxOpenCv.h"
 #include "ofxMidiSequenceRecorder.h"
@@ -62,6 +63,7 @@ private:
     
     // kinect recording
     ofxKinectSequenceRecorder kinectRecorder;
+    ofxKinectSequencePlayer kinectPlayer;
     
     // kinect
     ofxKinect kinect;

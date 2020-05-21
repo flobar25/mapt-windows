@@ -32,8 +32,10 @@ void ofApp::setup(){
     kinectRecorder.setNumberWidth(8);
     kinectRecorder.startThread();
     
-    midiRecorder.openFile(ofToDataPath("/Users/florentbariod/Development/of_v0.11.0_osx_release/apps/myApps/templateVideoOF/bin/data/recording/" + ofToString(ms.count()) + "/midi/recording.txt"));
+    midiRecorder.openFile(ofToDataPath(ofToDataPath("recording/" + ofToString(ms.count()) + "/midi/recording.txt")));
     midiRecorder.startThread();
+    
+    kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", 8);
     
     ofSetFrameRate(30);
     
@@ -158,15 +160,7 @@ void ofApp::drawKinect() {
     if (kinectActive){
         depthPixelsRaw = kinect.getRawDepthPixels();
     } else if (kinectPlayerActive) {
-        // TODO load that in memory at the beginning
-        auto path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
-        ofShortImage load;
-        if (!ofFile::doesFileExist(path)){
-            kinectCurrentFramePlayed = 0;
-            path = ofToDataPath("recording/kinect/frame_" + ofToString(kinectCurrentFramePlayed++, numberWidth, '0') + ".png");
-        }
-        load.load(path);
-        depthPixelsRaw = load.getPixels();
+        depthPixelsRaw = kinectPlayer.getNextImage();
     }
     
     if (kinectActive || kinectPlayerActive) {
