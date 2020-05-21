@@ -1,17 +1,20 @@
 #include "ofApp.h"
 #include <chrono>
 
+
 bool debugMode = true;
 bool recording = false;
 bool kinectActive = false;
 bool kinectRecordingActive = false;
-bool kinectPlayerActive;
+bool kinectPlayerActive = false;
+bool midiRecordingActive = false;
+
 int kinectCurrentFramePlayed = 0;
 int kinectWidth = 640;
 int kinectHeight = 480;
 int kinectStep = 2;
 int numberWidth = 8;
-
+int midiFrameStart = 0;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -19,16 +22,18 @@ void ofApp::setup(){
     using namespace std::chrono;
     milliseconds ms = duration_cast< seconds >(system_clock::now().time_since_epoch());
     
-    // recorder
     recorder.setPrefix(ofToDataPath("recording/" + ofToString(ms.count()) + "/render/frame_"));
     recorder.setFormat("png");
     recorder.setNumberWidth(8);
     recorder.startThread();
-    
+
     kinectRecorder.setPrefix(ofToDataPath("recording/" + ofToString(ms.count()) + "/kinect/frame_"));
     kinectRecorder.setFormat("png");
     kinectRecorder.setNumberWidth(8);
     kinectRecorder.startThread();
+    
+    midiRecorder.openFile(ofToDataPath("/Users/florentbariod/Development/of_v0.11.0_osx_release/apps/myApps/templateVideoOF/bin/data/recording/" + ofToString(ms.count()) + "/midi/recording.txt"));
+    midiRecorder.startThread();
     
     ofSetFrameRate(30);
     
@@ -45,6 +50,8 @@ void ofApp::exit(){
     recorder.stopThread();
     kinectRecorder.waitForThread();
     kinectRecorder.stopThread();
+    midiRecorder.waitForThread();
+    midiRecorder.stopThread();
 }
 
 //--------------------------------------------------------------
@@ -104,13 +111,18 @@ void ofApp::keyPressed(int key) {
         case 'z':
             toggleDebugMode();
             break;
+        case 'i':
+            toggleMidiRecording();
+            break;
         default:
             break;
     }
 }
 
 void ofApp::newMidiMessage(ofxMidiMessage& eventArgs){
-    
+    if (midiRecordingActive){
+        midiRecorder.addMidiFrame(ofGetFrameNum() - midiFrameStart, eventArgs);
+    }
 }
 
 void ofApp::captureScreen(){
@@ -201,6 +213,11 @@ void ofApp::toggleDebugMode() {
     debugMode = !debugMode;
 }
 
+void ofApp::toggleMidiRecording(){
+    midiRecordingActive = !midiRecordingActive;
+    midiFrameStart = ofGetFrameNum();
+}
+
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
     
@@ -262,6 +279,7 @@ string ofApp::debugMessage() {
     << "a: activate kinect : " << ofToString(kinectActive) << endl
     << "s: trigger kinect recording " << ofToString(kinectRecordingActive) << endl
     << "d: activate kinect player " << ofToString(kinectPlayerActive) << endl
+    << "i: toggle midi recording :  " << ofToString(midiRecordingActive) << endl
     << "z: toggle debug :  " << ofToString(debugMode) << endl;
     
     return reportStream.str();

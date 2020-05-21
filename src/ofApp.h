@@ -6,6 +6,7 @@
 #include "ofxKinectSequenceRecorder.h"
 #include "ofxKinect.h"
 #include "ofxOpenCv.h"
+#include "ofxMidiSequenceRecorder.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
     
@@ -21,6 +22,7 @@ public:
     
     // MIDI
     void newMidiMessage(ofxMidiMessage& eventArgs);
+    void toggleMidiRecording();
     
     // kinect
     void initKinect();
@@ -49,6 +51,7 @@ public:
 private:
     // midi
     ofxMidiIn midiIn;
+    ofxMidiSequenceRecorder midiRecorder;
     
     // camera
     ofEasyCam cam;
