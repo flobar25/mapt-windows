@@ -8,6 +8,7 @@ bool kinectActive = false;
 bool kinectRecordingActive = false;
 bool kinectPlayerActive = false;
 bool midiRecordingActive = false;
+bool midiPlayerActive = false;
 
 int kinectCurrentFramePlayed = 0;
 int kinectWidth = 640;
@@ -36,6 +37,7 @@ void ofApp::setup(){
     midiRecorder.startThread();
     
     kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", 8);
+    midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     ofSetFrameRate(30);
     
@@ -71,6 +73,12 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    if (midiPlayerActive) {
+        for (auto midiMessage : midiPlayer.getNextMidiMessages()) {
+            newMidiMessage(midiMessage);
+        }
+    }
+    
     cam.begin();
     drawKinect();
     cam.end();
@@ -116,14 +124,23 @@ void ofApp::keyPressed(int key) {
         case 'i':
             toggleMidiRecording();
             break;
+        case 'o':
+            toggleMidiPlayer();
+            break;
         default:
             break;
     }
 }
 
-void ofApp::newMidiMessage(ofxMidiMessage& eventArgs){
+void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
+    ofLog(ofLogLevel::OF_LOG_NOTICE, "" + ofToString(midiMessage.channel) + ","
+          + ofToString(midiMessage.status) + ","
+          + ofToString(midiMessage.pitch) + ","
+          + ofToString(midiMessage.velocity) + ","
+          + ofToString(midiMessage.value) + ",") ;
+    
     if (midiRecordingActive){
-        midiRecorder.addMidiFrame(ofGetFrameNum() - midiFrameStart, eventArgs);
+        midiRecorder.addMidiFrame(ofGetFrameNum() - midiFrameStart, midiMessage);
     }
 }
 
@@ -266,6 +283,10 @@ void ofApp::toggleRecording(){
     recording = !recording;
 }
 
+void ofApp::toggleMidiPlayer() {
+    midiPlayerActive = !midiPlayerActive;
+}
+
 string ofApp::debugMessage() {
     stringstream reportStream;
     reportStream << "q: trigger recording : " << ofToString(recording) << endl
@@ -274,6 +295,7 @@ string ofApp::debugMessage() {
     << "s: trigger kinect recording " << ofToString(kinectRecordingActive) << endl
     << "d: activate kinect player " << ofToString(kinectPlayerActive) << endl
     << "i: toggle midi recording :  " << ofToString(midiRecordingActive) << endl
+    << "o: toggle midi recording :  " << ofToString(midiPlayerActive) << endl
     << "z: toggle debug :  " << ofToString(debugMode) << endl;
     
     return reportStream.str();
