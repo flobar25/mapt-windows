@@ -10,7 +10,9 @@ public:
     
     
     ~ofxMidiSequenceRecorder(){
-        ofBufferToFile(filePath, buffer);
+        if (buffer.size() > 0) {
+            ofBufferToFile(filePath, buffer);
+        }
     }
     
     void openFile(std::string path){

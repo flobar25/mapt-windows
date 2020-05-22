@@ -295,7 +295,7 @@ string ofApp::debugMessage() {
     << "s: trigger kinect recording " << ofToString(kinectRecordingActive) << endl
     << "d: activate kinect player " << ofToString(kinectPlayerActive) << endl
     << "i: toggle midi recording :  " << ofToString(midiRecordingActive) << endl
-    << "o: toggle midi recording :  " << ofToString(midiPlayerActive) << endl
+    << "o: toggle midi player :  " << ofToString(midiPlayerActive) << endl
     << "z: toggle debug :  " << ofToString(debugMode) << endl;
     
     return reportStream.str();
