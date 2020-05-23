@@ -81,6 +81,9 @@ void ofApp::draw(){
     
     cam.begin();
     drawKinect();
+    if (debugMode) {
+        ofDrawAxis(20);
+    }
     cam.end();
     
     // capture the image if recording is started

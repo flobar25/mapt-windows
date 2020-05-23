@@ -42,8 +42,8 @@ public:
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
         ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_LINES );
-        int step = 1;
+        mesh.setMode(OF_PRIMITIVE_TRIANGLES );
+        int step = 2;
         int index = 0;
         for(int y = 0; y < kinectHeight; y += step) {
             for(int x = 0; x < kinectWidth; x += step) {
@@ -83,7 +83,7 @@ public:
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
-//        ofTranslate(0, 0, -1000); // center the points a bit
+        ofTranslate(0, -500, -1000); // center the points a bit
         ofEnableDepthTest();
         getNextImage().drawVertices();
         ofDisableDepthTest();
