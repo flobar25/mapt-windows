@@ -47,6 +47,14 @@ void ofApp::setup(){
     
     // kinect
     initKinect();
+    
+    //camera
+    cam.setNearClip(0);
+    cam.setFarClip(100000);
+    
+    // other things
+    ofEnableAlphaBlending();
+    ofEnableDepthTest();
 }
 
 void ofApp::exit(){
@@ -83,7 +91,7 @@ void ofApp::draw(){
     cam.begin();
     drawKinect();
     if (debugMode) {
-        ofDrawAxis(20);
+        ofDrawAxis(200);
     }
     cam.end();
     
@@ -183,6 +191,7 @@ void ofApp::drawKinect() {
         ofDisableDepthTest();
         ofPopMatrix();
     } else if (kinectPlayerActive) {
+//        kinectPlayer.move(2,2,2);
         kinectPlayer.draw();
     }
 }

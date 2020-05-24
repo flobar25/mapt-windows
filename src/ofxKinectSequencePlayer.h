@@ -3,18 +3,10 @@
 
 class ofxKinectSequencePlayer  {
 public:
-  
-    vector<ofMesh> frames;
-    int currentFrame = 0;
-    int kinectHeight;
-    int kinectWidth;
-    ofImage spaceImage;
-    int intensityThreshold;
-    ofShader shader;
-      
+        
     void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int threshold = 50){
-        spaceImage.load(imagePath);
-        spaceImage.resize(width, height);
+        image.load(imagePath);
+        image.resize(width, height);
         intensityThreshold = threshold;
         kinectHeight = height;
         kinectWidth = width;
@@ -56,7 +48,7 @@ public:
                 auto distance = depthPixelsRaw[y * kinectWidth + x];
                 if(distance > 0 && distance < 1000) {
                     mesh.addVertex(ofPoint(x, y, distance));
-                    auto spaceColor = spaceImage.getColor(x, y);
+                    auto spaceColor = image.getColor(x, y);
                     if (spaceColor.getLightness() > intensityThreshold) {
                         mesh.addColor(spaceColor);
                     } else {
@@ -84,15 +76,40 @@ public:
         return mesh;
     }
     
+    
+    
     void draw() {
         glPointSize(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
-        ofTranslate(0, -500, -1000); // center the points a bit
+        ofTranslate(-220 + position.x, -400 + position.y, -1000 + position.z); // center the points a bit
         shader.begin();
+        float length = sin((float)currentFrame/100.0) * 200;
+        shader.setUniform1f("length", length);
+        ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString( length));
         getNextImage().drawVertices();
         shader.end();
         ofPopMatrix();
     }
+    
+    void setPosition(int x, int y, int z) {
+        position = ofVec3f(x,y,z);
+    }
+    
+    void move(int x, int y, int z) {
+        position = ofVec3f(position.x + x, position.y + y, position.z + z);
+    }
+    
+private:
+    vector<ofMesh> frames;
+    int currentFrame = 0;
+    int kinectHeight;
+    int kinectWidth;
+    int intensityThreshold;
+    ofImage image;
+    ofShader shader;
+    ofVec3f position = ofVec3f(0,0,0);
+
+    
 };
