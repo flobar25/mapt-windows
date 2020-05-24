@@ -73,6 +73,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofEnableDepthTest();
     if (midiPlayerActive) {
         for (auto midiMessage : midiPlayer.getNextMidiMessages()) {
             newMidiMessage(midiMessage);

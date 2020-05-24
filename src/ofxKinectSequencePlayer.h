@@ -10,6 +10,7 @@ public:
     int kinectWidth;
     ofImage spaceImage;
     int intensityThreshold;
+    ofShader shader;
       
     void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int threshold = 50){
         spaceImage.load(imagePath);
@@ -26,6 +27,11 @@ public:
             frameNumber++;
             fileName = prefix + ofToString(frameNumber, numberWidth, '0') + "." + format;
         }
+
+        shader.setGeometryInputType(GL_POINTS);
+        shader.setGeometryOutputType(GL_LINE_STRIP);
+        shader.setGeometryOutputCount(2);
+        shader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
     }
     
     ofMesh getImage(int frameNumber) {
@@ -42,7 +48,7 @@ public:
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
         ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_TRIANGLES );
+        mesh.setMode(OF_PRIMITIVE_POINTS );
         int step = 2;
         int index = 0;
         for(int y = 0; y < kinectHeight; y += step) {
@@ -84,9 +90,9 @@ public:
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
         ofTranslate(0, -500, -1000); // center the points a bit
-        ofEnableDepthTest();
+        shader.begin();
         getNextImage().drawVertices();
-        ofDisableDepthTest();
+        shader.end();
         ofPopMatrix();
     }
 };
