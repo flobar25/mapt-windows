@@ -24,6 +24,11 @@ public:
         shader.setGeometryOutputType(GL_LINE_STRIP);
         shader.setGeometryOutputCount(2);
         shader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
+        
+        stripsShader.setGeometryInputType(GL_TRIANGLES);
+        stripsShader.setGeometryOutputType(GL_LINE_STRIP);
+        stripsShader.setGeometryOutputCount(3);
+        stripsShader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
     }
     
     ofMesh getImage(int frameNumber) {
@@ -93,11 +98,16 @@ public:
             getNextImage().drawVertices();
             shader.end();
 
+        } else if (drawStrips) {
+//            stripsShader.begin();
+            auto image = getNextImage();
+            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_LINE_STRIP);
+            image.drawVertices();
+//            stripsShader.end();
         } else {
             getNextImage().drawVertices();
         }
         
-        ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString( length));
         ofPopMatrix();
     }
     
@@ -114,6 +124,11 @@ public:
         moveTargetPosition = ofVec3f(ofRandom(100), ofRandom(100), ofRandom(100)).normalize() * moveLineLength;
     }
     
+    void toggleStrips(){
+        drawStrips = !drawStrips;
+    }
+    
+    
 private:
     vector<ofMesh> frames;
     int currentFrame = 0;
@@ -127,5 +142,7 @@ private:
     int intensityThreshold;
     ofImage image;
     ofShader shader;
+    ofShader stripsShader;
     ofVec3f position = ofVec3f(0,0,0);
+    bool drawStrips = false;
 };

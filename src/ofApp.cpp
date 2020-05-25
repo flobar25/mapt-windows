@@ -145,6 +145,10 @@ void ofApp::keyPressed(int key) {
             kinectPlayer1.startMove();
             kinectPlayer2.startMove();
             break;
+        case '2':
+            kinectPlayer1.toggleStrips();
+            kinectPlayer2.toggleStrips();
+            break;
         default:
             break;
     }
