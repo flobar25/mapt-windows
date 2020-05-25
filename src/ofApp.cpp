@@ -36,7 +36,9 @@ void ofApp::setup(){
     midiRecorder.openFile(ofToDataPath(ofToDataPath("recording/" + ofToString(ms.count()) + "/midi/recording.txt")));
     midiRecorder.startThread();
     
-    kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+    kinectPlayer2.move(-200, -200, -200);
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     ofSetFrameRate(30);
@@ -139,6 +141,10 @@ void ofApp::keyPressed(int key) {
         case 'o':
             toggleMidiPlayer();
             break;
+        case '1':
+            kinectPlayer1.startMove();
+            kinectPlayer2.startMove();
+            break;
         default:
             break;
     }
@@ -180,7 +186,7 @@ void ofApp::drawKinect() {
     
     ofMesh mesh;
     if (kinectActive){
-        mesh = kinectPlayer.convertToMesh(kinect.getRawDepthPixels());
+        mesh = kinectPlayer1.convertToMesh(kinect.getRawDepthPixels());
         glPointSize(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
@@ -192,7 +198,9 @@ void ofApp::drawKinect() {
         ofPopMatrix();
     } else if (kinectPlayerActive) {
 //        kinectPlayer.move(2,2,2);
-        kinectPlayer.draw();
+        kinectPlayer1.draw();
+        kinectPlayer2.draw();
+        kinectPlayer2.move(1, 1, 1);
     }
 }
 

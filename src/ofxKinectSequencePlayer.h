@@ -58,38 +58,46 @@ public:
                 }
             }
         }
-        
-//        int numVerts = mesh.getNumVertices();
-//        for (int a=0; a<numVerts; ++a) {
-//            ofVec3f verta = mesh.getVertex(a);
-//            for (int b=a+1; b<numVerts; ++b) {
-//                ofVec3f vertb = mesh.getVertex(b);
-//                float distance = verta.distance(vertb);
-//                if (distance <= connectionDistance) {
-//                    mesh.addIndex(a);
-//                    mesh.addIndex(b);
-//                }
-//            }
-//        }
-//
-        
         return mesh;
     }
     
     
     
     void draw() {
-        glPointSize(1);
+        glPointSize(0.5);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
         ofTranslate(-220 + position.x, -400 + position.y, -1000 + position.z); // center the points a bit
-        shader.begin();
-        float length = sin((float)currentFrame/100.0) * 200;
-        shader.setUniform1f("length", length);
+        float length = 0;
+        if (currentFrame - moveStartFrame < moveFramesCount) {
+            // going towards the target position
+            int xCurrentPosition = (moveTargetPosition.x / moveFramesCount) * (currentFrame - moveStartFrame);
+            int yCurrentPosition = (moveTargetPosition.y / moveFramesCount) * (currentFrame - moveStartFrame);
+            int zCurrentPosition = (moveTargetPosition.z / moveFramesCount) * (currentFrame - moveStartFrame);
+            auto currentPosition = glm::vec3(xCurrentPosition, yCurrentPosition, zCurrentPosition);
+
+            shader.begin();
+            shader.setUniform3f("position", currentPosition);
+            getNextImage().drawVertices();
+            shader.end();
+        } else if (currentFrame - moveStartFrame < moveFramesCount * 2) {
+            // going back to the start position
+            int xCurrentPosition = moveTargetPosition.x - ((moveTargetPosition.x / moveFramesCount) * (currentFrame - moveStartFrame - moveFramesCount));
+            int yCurrentPosition = moveTargetPosition.y - ((moveTargetPosition.y / moveFramesCount) * (currentFrame - moveStartFrame - moveFramesCount));
+            int zCurrentPosition = moveTargetPosition.z - ((moveTargetPosition.z / moveFramesCount) * (currentFrame - moveStartFrame - moveFramesCount));
+            auto currentPosition = glm::vec3(xCurrentPosition, yCurrentPosition, zCurrentPosition);
+
+            shader.begin();
+            shader.setUniform3f("position", currentPosition);
+            getNextImage().drawVertices();
+            shader.end();
+
+        } else {
+            getNextImage().drawVertices();
+        }
+        
         ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString( length));
-        getNextImage().drawVertices();
-        shader.end();
         ofPopMatrix();
     }
     
@@ -101,15 +109,23 @@ public:
         position = ofVec3f(position.x + x, position.y + y, position.z + z);
     }
     
+    void startMove() {
+        moveStartFrame = currentFrame - 1;
+        moveTargetPosition = ofVec3f(ofRandom(100), ofRandom(100), ofRandom(100)).normalize() * moveLineLength;
+    }
+    
 private:
     vector<ofMesh> frames;
     int currentFrame = 0;
+    int moveStartFrame = -200;
+    ofVec3f moveTargetPosition;
+    ofVec3f moveCurrentPosition;
+    int moveLineLength = 100;
+    int moveFramesCount = 20;
     int kinectHeight;
     int kinectWidth;
     int intensityThreshold;
     ofImage image;
     ofShader shader;
     ofVec3f position = ofVec3f(0,0,0);
-
-    
 };
