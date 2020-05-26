@@ -35,17 +35,6 @@ void main() {
     gl_FrontColor = gl_FrontColorIn[2];
     EmitVertex();
     EndPrimitive();
-    
-    //    gl_Position = gl_ModelViewProjectionMatrix * explode(gl_PositionIn[0], normal);
-    //    gl_FrontColor = gl_FrontColorIn[0];
-    //    EmitVertex();
-    //    gl_Position = gl_ModelViewProjectionMatrix * explode(gl_PositionIn[1], normal);
-    //    gl_FrontColor = gl_FrontColorIn[1];
-    //    EmitVertex();
-    //    gl_Position = gl_ModelViewProjectionMatrix * explode(gl_PositionIn[2], normal);
-    //    gl_FrontColor = gl_FrontColorIn[2];
-    //    EmitVertex();
-    //    EndPrimitive();
-    
+
 } 
 

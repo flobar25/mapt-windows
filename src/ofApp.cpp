@@ -147,7 +147,7 @@ void ofApp::keyPressed(int key) {
             toggleMidiPlayer();
             break;
         case '1':
-            kinectPlayer1.startMove();
+            kinectPlayer1.startStretch();
             break;
         case '2':
             kinectPlayer1.toggleStrips();
