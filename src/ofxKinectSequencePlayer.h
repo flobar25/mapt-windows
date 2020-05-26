@@ -1,4 +1,5 @@
 #include "ofMain.h"
+#include "ofxTriangle.h"
 
 
 class ofxKinectSequencePlayer  {
@@ -25,10 +26,16 @@ public:
         shader.setGeometryOutputCount(2);
         shader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
         
-        stripsShader.setGeometryInputType(GL_TRIANGLES);
+        stripsShader.setGeometryInputType(GL_POINTS);
         stripsShader.setGeometryOutputType(GL_LINE_STRIP);
         stripsShader.setGeometryOutputCount(3);
-        stripsShader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
+        stripsShader.load("shaders/kinectStripsShaderVert.c", "shaders/kinectStripsShaderFrag.c", "shaders/kinectStripsShaderGeo.c");
+
+        explodingShader.setGeometryInputType(GL_TRIANGLES);
+        explodingShader.setGeometryOutputType(GL_TRIANGLE_STRIP);
+        explodingShader.setGeometryOutputCount(3);
+        explodingShader.load("shaders/explodingShaderVert.c", "shaders/explodingShaderFrag.c", "shaders/explodingShaderGeo.c");
+        
     }
     
     ofMesh getImage(int frameNumber) {
@@ -44,24 +51,37 @@ public:
     }
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
-        ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_POINTS );
+        vector<ofPoint> points;
+        
         int step = 2;
         int index = 0;
         for(int y = 0; y < kinectHeight; y += step) {
             for(int x = 0; x < kinectWidth; x += step) {
                 auto distance = depthPixelsRaw[y * kinectWidth + x];
                 if(distance > 0 && distance < 1000) {
-                    mesh.addVertex(ofPoint(x, y, distance));
-                    auto spaceColor = image.getColor(x, y);
-                    if (spaceColor.getLightness() > intensityThreshold) {
-                        mesh.addColor(spaceColor);
-                    } else {
-                        mesh.addColor(ofColor(255));
-                    }
-                    
+                    points.push_back(ofPoint(x, y, distance));
+//                    auto spaceColor = image.getColor(x, y);
+//                    if (spaceColor.getLightness() > intensityThreshold) {
+//                        tempMesh.addColor(spaceColor);
+//                    } else {
+//                        tempMesh.addColor(ofColor(255));
+//                    }
                 }
             }
+        }
+        triangle.clear();
+        triangle.triangulate(points, 5000);
+        
+        
+        ofMesh mesh;
+        mesh.setMode(OF_PRIMITIVE_TRIANGLES );
+        for (int i = 0; i < triangle.triangles.size(); i++) {
+            mesh.addVertex(triangle.triangles[i].a);
+            mesh.addColor(ofColor(100));
+            mesh.addVertex(triangle.triangles[i].b);
+            mesh.addColor(ofColor(100));
+            mesh.addVertex(triangle.triangles[i].c);
+            mesh.addColor(ofColor(100));
         }
         return mesh;
     }
@@ -84,7 +104,7 @@ public:
 
             shader.begin();
             shader.setUniform3f("position", currentPosition);
-            getNextImage().drawVertices();
+            getNextImage().drawWireframe();
             shader.end();
         } else if (currentFrame - moveStartFrame < moveFramesCount * 2) {
             // going back to the start position
@@ -95,17 +115,27 @@ public:
 
             shader.begin();
             shader.setUniform3f("position", currentPosition);
-            getNextImage().drawVertices();
+            getNextImage().drawWireframe();
             shader.end();
 
         } else if (drawStrips) {
-//            stripsShader.begin();
-            auto image = getNextImage();
-            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_LINE_STRIP);
-            image.drawVertices();
-//            stripsShader.end();
+            stripsShader.begin();
+//            auto image = getNextImage();
+//            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_LINE_STRIP);
+            getNextImage().drawWireframe();
+            stripsShader.end();
+        } else if (explosionStartFrame > 0) {
+            explodingShader.begin();
+            explodingShader.setUniform1f("time", (float) (currentFrame - explosionStartFrame));
+            auto nextImage = getNextImage();
+            nextImage.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLES);
+            nextImage.drawWireframe();
+            explodingShader.end();
+            if (currentFrame - explosionStartFrame > 100){
+                explosionStartFrame = -1;
+            }
         } else {
-            getNextImage().drawVertices();
+            getNextImage().drawWireframe();
         }
         
         ofPopMatrix();
@@ -128,21 +158,36 @@ public:
         drawStrips = !drawStrips;
     }
     
+    void startExplosion() {
+        explosionStartFrame = currentFrame - 1;
+    }
+    
     
 private:
     vector<ofMesh> frames;
     int currentFrame = 0;
+
+    int kinectHeight;
+    int kinectWidth;
+    int intensityThreshold;
+    ofImage image;
+
+    ofShader stripsShader;
+    ofVec3f position = ofVec3f(0,0,0);
+    bool drawStrips = false;
+    
+    // moving lines
+    ofShader shader;
     int moveStartFrame = -200;
     ofVec3f moveTargetPosition;
     ofVec3f moveCurrentPosition;
     int moveLineLength = 100;
     int moveFramesCount = 20;
-    int kinectHeight;
-    int kinectWidth;
-    int intensityThreshold;
-    ofImage image;
-    ofShader shader;
-    ofShader stripsShader;
-    ofVec3f position = ofVec3f(0,0,0);
-    bool drawStrips = false;
+    
+    // explosion
+    ofShader explodingShader;
+    int explosionStartFrame = -1;
+    
+    // point cloud triangulation
+    ofxTriangle  triangle;
 };

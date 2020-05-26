@@ -9,14 +9,15 @@ void main() {
     gl_FrontColor = gl_FrontColorIn[0];
     EmitVertex();
 
-    p0.x += position.x;
-    p0.y += position.y;
-    p0.z += position.z;
+    p0 = gl_PositionIn[1].xyz;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(p0, 1.0);
     gl_FrontColor = gl_FrontColorIn[0];
     EmitVertex();
 
-
+    p0 = gl_PositionIn[2].xyz;
+    gl_Position = gl_ModelViewProjectionMatrix * vec4(p0, 1.0);
+    gl_FrontColor = gl_FrontColorIn[0];
+    EmitVertex();
 
 }
 
