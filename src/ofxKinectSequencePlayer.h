@@ -1,14 +1,12 @@
 #include "ofMain.h"
-#include "ofxTriangle.h"
 
 
 class ofxKinectSequencePlayer  {
 public:
         
-    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int threshold = 50){
+    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath){
         image.load(imagePath);
         image.resize(width, height);
-        intensityThreshold = threshold;
         kinectHeight = height;
         kinectWidth = width;
         int frameNumber = 0;
@@ -43,23 +41,26 @@ public:
     }
     
     ofMesh getNextImage() {
-        return frames.at(currentFrame++ % frames.size());
+        return frames.at(currentPlayedFrame++ % frames.size());
     }
     
     ofMesh getCurrentImage() {
-        return frames.at(currentFrame % frames.size());
+        return frames.at(currentPlayedFrame % frames.size());
     }
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
-        vector<ofPoint> points;
+        ofMesh mesh;
         
         int step = 2;
         int index = 0;
-        for(int y = 0; y < kinectHeight; y += step) {
-            for(int x = 0; x < kinectWidth; x += step) {
+        for(int y = cropUp; y < kinectHeight - cropDown; y += step) {
+            for(int x = cropLeft; x < kinectWidth - cropRight; x += step) {
                 auto distance = depthPixelsRaw[y * kinectWidth + x];
-                if(distance > 0 && distance < 1000) {
-                    points.push_back(ofPoint(x, y, distance));
+                auto distance2 = depthPixelsRaw[(y+step) * kinectWidth + x];
+                if(distance > cropNear && distance < cropFar && distance2 > cropNear && distance2 < cropFar) {
+                    mesh.addVertex(ofPoint(x, y, distance));
+                    mesh.addVertex(ofPoint(x, y+step, distance2));
+                    
 //                    auto spaceColor = image.getColor(x, y);
 //                    if (spaceColor.getLightness() > intensityThreshold) {
 //                        tempMesh.addColor(spaceColor);
@@ -69,26 +70,29 @@ public:
                 }
             }
         }
-        triangle.clear();
-        triangle.triangulate(points, 5000);
+
         
         
-        ofMesh mesh;
-        mesh.setMode(OF_PRIMITIVE_TRIANGLES );
-        for (int i = 0; i < triangle.triangles.size(); i++) {
-            mesh.addVertex(triangle.triangles[i].a);
-            mesh.addColor(ofColor(100));
-            mesh.addVertex(triangle.triangles[i].b);
-            mesh.addColor(ofColor(100));
-            mesh.addVertex(triangle.triangles[i].c);
-            mesh.addColor(ofColor(100));
-        }
+//        ofMesh mesh;
+//        mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+//        for (int i = 0; i < points.size(); i++) {
+//            for (int j = i; j < points.size(); j++){
+//
+//                    mesh.addVertex(triangle.triangles[i].a);
+//                    mesh.addColor(ofColor(100));
+//                    mesh.addVertex(triangle.triangles[i].b);
+//                    mesh.addColor(ofColor(100));
+//                    mesh.addVertex(triangle.triangles[i].c);
+//                    mesh.addColor(ofColor(100));
+//            }
+//        }
         return mesh;
     }
     
     
     
     void draw() {
+        currentFrame++;
         glPointSize(0.5);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
@@ -104,7 +108,7 @@ public:
 
             shader.begin();
             shader.setUniform3f("position", currentPosition);
-            getNextImage().drawWireframe();
+            getNextImage().drawVertices();
             shader.end();
         } else if (currentFrame - moveStartFrame < moveFramesCount * 2) {
             // going back to the start position
@@ -115,7 +119,7 @@ public:
 
             shader.begin();
             shader.setUniform3f("position", currentPosition);
-            getNextImage().drawWireframe();
+            getNextImage().drawVertices();
             shader.end();
 
         } else if (drawStrips) {
@@ -127,15 +131,14 @@ public:
         } else if (explosionStartFrame > 0) {
             explodingShader.begin();
             explodingShader.setUniform1f("time", (float) (currentFrame - explosionStartFrame));
-            auto nextImage = getNextImage();
-            nextImage.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLES);
-            nextImage.drawWireframe();
+            auto nextImage = getCurrentImage();
+            nextImage.drawVertices();
             explodingShader.end();
             if (currentFrame - explosionStartFrame > 100){
                 explosionStartFrame = -1;
             }
         } else {
-            getNextImage().drawWireframe();
+            getNextImage().drawVertices();
         }
         
         ofPopMatrix();
@@ -161,11 +164,19 @@ public:
     void startExplosion() {
         explosionStartFrame = currentFrame - 1;
     }
-    
+
+    // crop
+    int cropRight = 0;
+    int cropLeft = 0;
+    int cropUp = 0;
+    int cropDown = 0;
+    int cropNear = 0;
+    int cropFar = 1000;
     
 private:
     vector<ofMesh> frames;
     int currentFrame = 0;
+    int currentPlayedFrame = 0;
 
     int kinectHeight;
     int kinectWidth;
@@ -188,6 +199,5 @@ private:
     ofShader explodingShader;
     int explosionStartFrame = -1;
     
-    // point cloud triangulation
-    ofxTriangle  triangle;
+
 };

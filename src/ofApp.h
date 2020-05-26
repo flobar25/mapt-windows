@@ -67,7 +67,6 @@ private:
     // kinect recording
     ofxKinectSequenceRecorder kinectRecorder;
     ofxKinectSequencePlayer kinectPlayer1;
-    ofxKinectSequencePlayer kinectPlayer2;
     
     // kinect
     ofxKinect kinect;

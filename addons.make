@@ -2,4 +2,3 @@ ofxImageSequenceRecorder
 ofxKinect
 ofxMidi
 ofxOpenCv
-ofxTriangle

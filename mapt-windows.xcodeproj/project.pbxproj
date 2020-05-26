@@ -9,248 +9,6 @@
 		<string>46</string>
 		<key>objects</key>
 		<dict>
-			<key>C20C3D6ECADBDED32AF7A858</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxTriangle.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/src/ofxTriangle.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>229F56F912BE6E2F785205DA</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>7B928DEF9B0ED0E1AEFA99EE</string>
-					<string>C20C3D6ECADBDED32AF7A858</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>src</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>1D29183493968A6745214489</key>
-			<dict>
-				<key>fileRef</key>
-				<string>7B928DEF9B0ED0E1AEFA99EE</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>7B928DEF9B0ED0E1AEFA99EE</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>ofxTriangle.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/src/ofxTriangle.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>071D631BBDA00BB0980E88BC</key>
-			<dict>
-				<key>fileRef</key>
-				<string>5B58BF03F54854C49C0E8D21</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>5B58BF03F54854C49C0E8D21</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>del_impl.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/src/del_impl.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>97DC4EE352691FC2C5556C7B</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>95CC17619159CA7FBA37A39F</string>
-					<string>5B58BF03F54854C49C0E8D21</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>src</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>F433A9855079F16673B77E7B</key>
-			<dict>
-				<key>fileRef</key>
-				<string>95CC17619159CA7FBA37A39F</string>
-				<key>isa</key>
-				<string>PBXBuildFile</string>
-			</dict>
-			<key>95CC17619159CA7FBA37A39F</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.cpp.cpp</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>assert.cpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/src/assert.cpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>3E5DE2C3B5B2F24F019ECAC9</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>triangle_impl.hpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/include/triangle_impl.hpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>22D06D986AE2C99CD284FF3B</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>triangle.h</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/include/triangle.h</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>EA106A0D1EE95638A8C8AE12</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>dpoint.hpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/include/dpoint.hpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>EBFC66C6B2C360ED715A393B</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>del_interface.hpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/include/del_interface.hpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
-			<key>37EEFE9F7B252EA155DFB073</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>2F690304855C0AC1251BA32E</string>
-					<string>EBFC66C6B2C360ED715A393B</string>
-					<string>EA106A0D1EE95638A8C8AE12</string>
-					<string>22D06D986AE2C99CD284FF3B</string>
-					<string>3E5DE2C3B5B2F24F019ECAC9</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>include</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>D913B0E7F83503091319881D</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>37EEFE9F7B252EA155DFB073</string>
-					<string>97DC4EE352691FC2C5556C7B</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>Triangle</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>40AFB95CB9B438A51A7006FA</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>D913B0E7F83503091319881D</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>libs</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>098126D627B3CF52BE4C8ED0</key>
-			<dict>
-				<key>children</key>
-				<array>
-					<string>40AFB95CB9B438A51A7006FA</string>
-					<string>229F56F912BE6E2F785205DA</string>
-				</array>
-				<key>isa</key>
-				<string>PBXGroup</string>
-				<key>name</key>
-				<string>ofxTriangle</string>
-				<key>sourceTree</key>
-				<string>&lt;group&gt;</string>
-			</dict>
-			<key>2F690304855C0AC1251BA32E</key>
-			<dict>
-				<key>explicitFileType</key>
-				<string>sourcecode.c.h</string>
-				<key>fileEncoding</key>
-				<string>4</string>
-				<key>isa</key>
-				<string>PBXFileReference</string>
-				<key>name</key>
-				<string>assert.hpp</string>
-				<key>path</key>
-				<string>../../../addons/ofxTriangle/libs/Triangle/include/assert.hpp</string>
-				<key>sourceTree</key>
-				<string>SOURCE_ROOT</string>
-			</dict>
 			<key>CE81A5E39EB3C871FDF3D4D5</key>
 			<dict>
 				<key>explicitFileType</key>
@@ -10136,11 +9894,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -10275,11 +10028,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_RELEASE)</string>
@@ -10321,7 +10069,6 @@ fi
 					<string>9683228C705CA3FF4F2EA945</string>
 					<string>2413C01760B1811BED0F502D</string>
 					<string>A0B90D3B0ADB9C1716816714</string>
-					<string>098126D627B3CF52BE4C8ED0</string>
 				</array>
 				<key>isa</key>
 				<string>PBXGroup</string>
@@ -13178,11 +12925,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -13336,11 +13078,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>MACOSX_DEPLOYMENT_TARGET</key>
 					<string>10.9</string>
@@ -13394,9 +13131,6 @@ fi
 					<string>E212C821D1064B92DD953A42</string>
 					<string>63020F16C7E8DED980111241</string>
 					<string>D3301F6A0B43BB293ED97C1D</string>
-					<string>F433A9855079F16673B77E7B</string>
-					<string>071D631BBDA00BB0980E88BC</string>
-					<string>1D29183493968A6745214489</string>
 				</array>
 				<key>isa</key>
 				<string>PBXSourcesBuildPhase</string>
@@ -13589,11 +13323,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_DEBUG)</string>
@@ -13739,11 +13468,6 @@ fi
 						<string>../../../addons/ofxOpenCv/libs/opencv/lib/osx</string>
 						<string>../../../addons/ofxOpenCv/libs/opencv/license</string>
 						<string>../../../addons/ofxOpenCv/src</string>
-						<string>../../../addons/ofxTriangle/libs</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/include</string>
-						<string>../../../addons/ofxTriangle/libs/Triangle/src</string>
-						<string>../../../addons/ofxTriangle/src</string>
 					</array>
 					<key>ICON</key>
 					<string>$(ICON_NAME_RELEASE)</string>

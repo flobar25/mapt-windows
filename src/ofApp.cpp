@@ -36,9 +36,14 @@ void ofApp::setup(){
     midiRecorder.openFile(ofToDataPath(ofToDataPath("recording/" + ofToString(ms.count()) + "/midi/recording.txt")));
     midiRecorder.startThread();
     
+    kinectPlayer1.cropRight = 220;
+    kinectPlayer1.cropLeft = 0;
+    kinectPlayer1.cropUp = 0;
+    kinectPlayer1.cropDown = 100;
+    kinectPlayer1.cropNear = 200;
+    kinectPlayer1.cropFar = 1000;
     kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
-    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
-    kinectPlayer2.move(-200, -200, -200);
+    
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     ofSetFrameRate(30);
@@ -143,15 +148,12 @@ void ofApp::keyPressed(int key) {
             break;
         case '1':
             kinectPlayer1.startMove();
-            kinectPlayer2.startMove();
             break;
         case '2':
             kinectPlayer1.toggleStrips();
-            kinectPlayer2.toggleStrips();
             break;
         case '3':
             kinectPlayer1.startExplosion();
-            kinectPlayer2.startExplosion();
             break;
         default:
             break;
@@ -205,10 +207,7 @@ void ofApp::drawKinect() {
         ofDisableDepthTest();
         ofPopMatrix();
     } else if (kinectPlayerActive) {
-//        kinectPlayer.move(2,2,2);
         kinectPlayer1.draw();
-        kinectPlayer2.draw();
-        kinectPlayer2.move(1, 1, 1);
     }
 }
 
