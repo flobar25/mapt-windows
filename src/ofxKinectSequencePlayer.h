@@ -1,9 +1,15 @@
 #include "ofMain.h"
 
+enum EffectType {
+    NONE,
+    STRETCH,
+    STRIPS,
+    EXPLOSION
+};
 
 class ofxKinectSequencePlayer  {
 public:
-        
+    
     void load(string prefix, string format, int height, int width, int numberWidth, string imagePath){
         // load texture
         texture.load(imagePath);
@@ -21,13 +27,13 @@ public:
             frameNumber++;
             fileName = prefix + ofToString(frameNumber, numberWidth, '0') + "." + format;
         }
-
+        
         // setup shaders
-        shader.setGeometryInputType(GL_POINTS);
-        shader.setGeometryOutputType(GL_LINE_STRIP);
-        shader.setGeometryOutputCount(2);
-        shader.load("shaders/kinectShaderVert.c", "shaders/kinectShaderFrag.c", "shaders/kinectShaderGeo.c");
-
+        stretchShader.setGeometryInputType(GL_POINTS);
+        stretchShader.setGeometryOutputType(GL_LINE_STRIP);
+        stretchShader.setGeometryOutputCount(2);
+        stretchShader.load("shaders/stretchShaderVert.c", "shaders/stretchShaderFrag.c", "shaders/stretchShaderGeo.c");
+        
         explodingShader.setGeometryInputType(GL_TRIANGLES);
         explodingShader.setGeometryOutputType(GL_TRIANGLE_STRIP);
         explodingShader.setGeometryOutputCount(3);
@@ -69,7 +75,7 @@ public:
                 }
             }
         }
-
+        
         return mesh;
     }
     
@@ -81,46 +87,36 @@ public:
         ofScale(1, -1, -1);
         ofTranslate(-220 + position.x, -400 + position.y, -1000 + position.z); // center the points a bit
         
-        if (currentFrame - stretchStartFrame < stretchFramesCount) {
-            // going towards the target position
-            int xCurrentPosition = (stretchTargetPosition.x / stretchFramesCount) * (currentFrame - stretchStartFrame);
-            int yCurrentPosition = (stretchTargetPosition.y / stretchFramesCount) * (currentFrame - stretchStartFrame);
-            int zCurrentPosition = (stretchTargetPosition.z / stretchFramesCount) * (currentFrame - stretchStartFrame);
-            auto currentPosition = glm::vec3(xCurrentPosition, yCurrentPosition, zCurrentPosition);
-            auto image = getNextImage();
-            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_POINTS);
-            shader.begin();
-            shader.setUniform3f("position", currentPosition);
-            image.drawVertices();
-            shader.end();
-        } else if (currentFrame - stretchStartFrame < stretchFramesCount * 2) {
-            // going back to the start position
-            int xCurrentPosition = stretchTargetPosition.x - ((stretchTargetPosition.x / stretchFramesCount) * (currentFrame - stretchStartFrame - stretchFramesCount));
-            int yCurrentPosition = stretchTargetPosition.y - ((stretchTargetPosition.y / stretchFramesCount) * (currentFrame - stretchStartFrame - stretchFramesCount));
-            int zCurrentPosition = stretchTargetPosition.z - ((stretchTargetPosition.z / stretchFramesCount) * (currentFrame - stretchStartFrame - stretchFramesCount));
-            auto currentPosition = glm::vec3(xCurrentPosition, yCurrentPosition, zCurrentPosition);
-            auto image = getNextImage();
-            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_POINTS);
-            shader.begin();
-            shader.setUniform3f("position", currentPosition);
-            image.drawVertices();
-            shader.end();
-        } else if (drawStrips) {
-            auto image = getNextImage();
-            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
-            image.drawWireframe();
-        } else if (explosionStartFrame > 0) {
-            explodingShader.begin();
-            explodingShader.setUniform1f("time", (float) (currentFrame - explosionStartFrame));
-            auto image = getCurrentImage();
-            image.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
-            image.drawVertices();
-            explodingShader.end();
-            if (currentFrame - explosionStartFrame > 100){
-                explosionStartFrame = -1;
-            }
-        } else {
-            getNextImage().drawVertices();
+        auto time = currentFrame - effectStartFrame;
+        ofMesh currentMesh;
+        switch (currentEffect) {
+            case EffectType::NONE:
+                getNextImage().drawVertices();
+                break;
+            case EffectType::STRETCH:
+                currentMesh = getNextImage();
+                currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_POINTS);
+                stretchShader.begin();
+                stretchShader.setUniform3f("targetPosition", stretchTargetPosition);
+                stretchShader.setUniform1i("time", currentFrame - effectStartFrame);
+                stretchShader.setUniform1i("stretchFramesCount", stretchFramesCount);
+                currentMesh.drawVertices();
+                stretchShader.end();
+                break;
+            case EffectType::STRIPS:
+                currentMesh = getNextImage();
+                currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
+                currentMesh.drawWireframe();
+                break;
+            case EffectType::EXPLOSION:
+                explodingShader.begin();
+                explodingShader.setUniform1f("time", time);
+                currentMesh = getCurrentImage();
+                currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
+                currentMesh.drawVertices();
+                explodingShader.end();
+            default:
+                break;
         }
         
         ofPopMatrix();
@@ -134,19 +130,27 @@ public:
         position = ofVec3f(position.x + x, position.y + y, position.z + z);
     }
     
-    void startStretch() {
-        stretchStartFrame = currentFrame - 1;
-        stretchTargetPosition = ofVec3f(ofRandom(100), ofRandom(100), ofRandom(100)).normalize() * stretchLineLength;
+    void toggleStretch() {
+        currentEffect = EffectType::STRETCH;
+        effectStartFrame = currentFrame - 1;
+        stretchTargetPosition = ofVec3f(ofRandom(200) - 100, ofRandom(200) - 100, ofRandom(200) - 100).normalize() * stretchLineLength;
     }
     
     void toggleStrips(){
-        drawStrips = !drawStrips;
+        currentEffect = EffectType::STRIPS;
+        effectStartFrame = currentFrame - 1;
     }
     
-    void startExplosion() {
-        explosionStartFrame = currentFrame - 1;
+    void toggleExplosion() {
+        currentEffect = EffectType::EXPLOSION;
+        effectStartFrame = currentFrame - 1;
     }
-
+    
+    void toggleNoEffect() {
+        currentEffect = EffectType::NONE;
+        effectStartFrame = -1;
+    }
+    
     // crop
     int cropRight = 0;
     int cropLeft = 0;
@@ -163,15 +167,14 @@ private:
     int kinectWidth;
     int intensityThreshold;
     ofImage texture;
-
     ofVec3f position = ofVec3f(0,0,0);
     
-    // draw strips
-    bool drawStrips = false;
+    // general effects
+    EffectType currentEffect = EffectType::NONE;
+    int effectStartFrame = -1;
     
-    // moving lines
-    ofShader shader;
-    int stretchStartFrame = -200;
+    // stretching lines
+    ofShader stretchShader;
     ofVec3f stretchTargetPosition;
     ofVec3f stretchCurrentPosition;
     int stretchLineLength = 100;
@@ -179,7 +182,4 @@ private:
     
     // explosion
     ofShader explodingShader;
-    int explosionStartFrame = -1;
-    
-
 };

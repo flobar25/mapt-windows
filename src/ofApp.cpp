@@ -27,7 +27,7 @@ void ofApp::setup(){
     recorder.setFormat("png");
     recorder.setNumberWidth(8);
     recorder.startThread();
-
+    
     kinectRecorder.setPrefix(ofToDataPath("recording/" + ofToString(ms.count()) + "/kinect/frame_"));
     kinectRecorder.setFormat("png");
     kinectRecorder.setNumberWidth(8);
@@ -146,14 +146,18 @@ void ofApp::keyPressed(int key) {
         case 'o':
             toggleMidiPlayer();
             break;
+        case '`':
+            kinectPlayer1.toggleNoEffect();
+            break;
+            
         case '1':
-            kinectPlayer1.startStretch();
+            kinectPlayer1.toggleStretch();
             break;
         case '2':
             kinectPlayer1.toggleStrips();
             break;
         case '3':
-            kinectPlayer1.startExplosion();
+            kinectPlayer1.toggleExplosion();
             break;
         default:
             break;
