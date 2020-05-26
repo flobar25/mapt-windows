@@ -98,7 +98,7 @@ public:
                 currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_POINTS);
                 stretchShader.begin();
                 stretchShader.setUniform3f("targetPosition", stretchTargetPosition);
-                stretchShader.setUniform1i("time", currentFrame - effectStartFrame);
+                stretchShader.setUniform1i("time", time);
                 stretchShader.setUniform1i("stretchFramesCount", stretchFramesCount);
                 currentMesh.drawVertices();
                 stretchShader.end();
