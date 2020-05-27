@@ -4,12 +4,14 @@
 class Tower  {
 public:
     
-    void setup(ofPoint position, int floorCount, int floorHeight, int floorLength, int floorWidth) {
+    void setup(ofPoint position, int floorCount, int floorHeight, int floorLength, int floorWidth, float displacementRate, ofVec3f displacement) {
         this->floorCount = floorCount;
         this->floorHeight = floorHeight;
         this->floorLength = floorLength;
         this->floorWidth = floorWidth;
         this->position = position;
+        this->displacementRate = displacementRate;
+        this->displacement = displacement;
         
         shader.setGeometryInputType(GL_LINES);
         shader.setGeometryOutputType(GL_LINE_STRIP);
@@ -37,12 +39,26 @@ public:
     }
     
     void draw() {
+        if (move) {
+            currentMoveFrame++;
+        }
         ofSetLineWidth(2);
         shader.begin();
         shader.setUniform1i("count", floorCount);
         shader.setUniform1i("height", floorHeight);
+        shader.setUniform1i("currentFrame", currentMoveFrame);
+        shader.setUniform1f("displacementRate", displacementRate);
+        shader.setUniform3f("displacement", displacement);
         mesh.draw();
         shader.end();
+    }
+    
+    void toggleMove() {
+        if (move == 0) {
+            move = 1;
+        } else {
+            move = 0;
+        }
     }
     
 private:
@@ -50,8 +66,11 @@ private:
     int floorHeight;
     int floorLength;
     int floorWidth;
+    float displacementRate;
+    ofVec3f displacement;
     ofShader shader;
     ofPoint position;
     ofMesh mesh;
-    
+    int move = 0;
+    int currentMoveFrame = 0;
 };

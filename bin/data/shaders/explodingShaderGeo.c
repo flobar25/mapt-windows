@@ -13,11 +13,9 @@ vec3 GetNormal()
 vec3 explode(vec3 position, vec3 normal)
 {
     float magnitude = 2.0;
-//    vec3 direction = normal * ((sin(time) + 1.0) / 2.0) * magnitude;
     vec3 direction = normal * time * magnitude;
     return position + direction;
-//    return gl_ModelViewProjectionMatrix * vec4(gl_PositionIn[0].xyz, 1.0);
-} 
+}
 
 
 
@@ -28,9 +26,11 @@ void main() {
     gl_Position = gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[0].xyz, normal), 1.0);
     gl_FrontColor = gl_FrontColorIn[0];
     EmitVertex();
+    normal.x = -normal.x;
     gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[1].xyz, normal), 1.0);
     gl_FrontColor = gl_FrontColorIn[1];
     EmitVertex();
+    normal.y = -normal.y;
     gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[2].xyz, normal), 1.0);
     gl_FrontColor = gl_FrontColorIn[2];
     EmitVertex();

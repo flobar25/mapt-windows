@@ -47,7 +47,7 @@ void ofApp::setup(){
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     // towers
-    tower.setup(ofPoint(0,0,0), 50, 200, 200, 200);
+    tower.setup(ofPoint(0,0,0), 50, 200, 200, 200, 0.1, ofPoint(-50,0,0));
     
     // midi
     midiIn.openPort(0);
@@ -163,6 +163,9 @@ void ofApp::keyPressed(int key) {
             break;
         case '3':
             kinectPlayer1.toggleExplosion();
+            break;
+        case '4':
+            tower.toggleMove();
             break;
         default:
             break;
