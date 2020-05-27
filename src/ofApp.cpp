@@ -46,7 +46,8 @@ void ofApp::setup(){
     
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
-    ofSetFrameRate(30);
+    // towers
+    tower.setup(ofPoint(0,0,0), 50, 200, 200, 200);
     
     // midi
     midiIn.openPort(0);
@@ -62,6 +63,7 @@ void ofApp::setup(){
     // other things
     ofEnableAlphaBlending();
     ofEnableDepthTest();
+    ofSetFrameRate(30);
 }
 
 void ofApp::exit(){
@@ -97,10 +99,13 @@ void ofApp::draw(){
     
     cam.begin();
     drawKinect();
+    tower.draw();
     if (debugMode) {
         ofDrawAxis(200);
     }
     cam.end();
+    
+    
     
     // capture the image if recording is started
     // this can slow down the rendering by a lot, so be aware of the framerate...

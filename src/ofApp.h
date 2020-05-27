@@ -9,6 +9,7 @@
 #include "ofxOpenCv.h"
 #include "ofxMidiSequenceRecorder.h"
 #include "ofxMidiSequencePlayer.h"
+#include "Tower.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
     
@@ -70,6 +71,9 @@ private:
     
     // kinect
     ofxKinect kinect;
+    
+    // towers
+    Tower tower;
     
     string debugMessage();
 };

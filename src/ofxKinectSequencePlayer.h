@@ -82,6 +82,7 @@ public:
     void draw() {
         currentFrame++;
         glPointSize(1);
+        ofSetLineWidth(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
