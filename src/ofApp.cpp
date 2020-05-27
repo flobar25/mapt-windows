@@ -171,7 +171,8 @@ void ofApp::keyPressed(int key) {
         case 'i': toggleMidiRecording(); break;
         case 'o': toggleMidiPlayer(); break;
         case '`': kinectPlayer1.toggleNoEffect(); break;
-        case 'j': cam.setRandomCamPosition(); break;
+        case 'j': cam.slowMoveToRandomPosition(); break;
+        case 'k': cam.fastMoveToRandomPosition(); break;
         case '1': kinectPlayer1.toggleStretch(); break;
         case '2': kinectPlayer1.toggleStrips(); break;
         case '3': kinectPlayer1.toggleExplosion(); break;

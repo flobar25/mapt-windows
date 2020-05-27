@@ -8,32 +8,32 @@ public:
         
         // position
         ofVec3f move = targetPosition - getPosition();
-        if (move.length() > CAM_SPEED) {
+        if (move.length() > camSpeed) {
             move.normalize();
-            move *= CAM_SPEED;
+            move *= camSpeed;
         }
         
         // look at
         ofVec3f lookAtDiff = targetLookAt - currentLookAt;
-        if (lookAtDiff.length() > LOOK_AT_SPEED) {
+        if (lookAtDiff.length() > lookAtSpeed) {
             lookAtDiff.normalize();
-            lookAtDiff *= LOOK_AT_SPEED;
+            lookAtDiff *= lookAtSpeed;
             currentLookAt += lookAtDiff;
         } else if (started) {
             setRandomLookAt();
         }
         
         // updir
-        if (currentUpVec.x < targetUpVec.x - ROLL_SPEED) {
-            currentUpVec.x += ROLL_SPEED;
+        if (currentUpVec.x < targetUpVec.x - rollSpeed) {
+            currentUpVec.x += rollSpeed;
             
-        } else if (currentUpVec.x > targetUpVec.x + ROLL_SPEED) {
-            currentUpVec.x -= ROLL_SPEED;
+        } else if (currentUpVec.x > targetUpVec.x + rollSpeed) {
+            currentUpVec.x -= rollSpeed;
         }
-        if (currentUpVec.y < targetUpVec.y - ROLL_SPEED) {
-            currentUpVec.y += ROLL_SPEED;
-        } else if (currentUpVec.y > targetUpVec.y + ROLL_SPEED) {
-            currentUpVec.y -= ROLL_SPEED;
+        if (currentUpVec.y < targetUpVec.y - rollSpeed) {
+            currentUpVec.y += rollSpeed;
+        } else if (currentUpVec.y > targetUpVec.y + rollSpeed) {
+            currentUpVec.y -= rollSpeed;
         }
         
         this->move(move);
@@ -41,9 +41,9 @@ public:
     }
     
     void setRandomLookAt() {
-        int x = (int) (ofRandom(CAM_MAX_X * 2)-CAM_MAX_X) * LOOK_AT_SCALE;
-        int y = (int) (ofRandom(CAM_MAX_Z * 2)-CAM_MAX_Z) * LOOK_AT_SCALE;
-        int z = (int) (ofRandom(CAM_MAX_Z * 2)-CAM_MAX_Z) * LOOK_AT_SCALE;
+        int x = (int) (ofRandom(CAM_MAX_X * 2)-CAM_MAX_X) * lookAtScale;
+        int y = (int) (ofRandom(CAM_MAX_Z * 2)-CAM_MAX_Z) * lookAtScale;
+        int z = (int) (ofRandom(CAM_MAX_Z * 2)-CAM_MAX_Z) * lookAtScale;
         targetLookAt = CENTER + ofVec3f(x, y, z);
     }
     
@@ -57,16 +57,43 @@ public:
         targetUpVec = ofVec3f(ofRandom(2) - 1, ofRandom(2) - 1, 0).normalize();
     }
     
+    void fastMoveToRandomPosition() {
+        camSpeed = FAST_CAM_SPEED;
+        lookAtScale = FAST_LOOK_AT_SCALE;
+        lookAtSpeed = FAST_LOOK_AT_SPEED;
+        rollSpeed = FAST_ROLL_SPEED;
+        setRandomCamPosition();
+    }
+    
+    void slowMoveToRandomPosition() {
+        camSpeed = DEFAULT_CAM_SPEED;
+        lookAtScale = DEFAULT_LOOK_AT_SCALE;
+        lookAtSpeed = DEFAULT_LOOK_AT_SPEED;
+        rollSpeed = DEFAULT_ROLL_SPEED;
+        setRandomCamPosition();
+    }
+    
 private:
     bool started = false;
     int CAM_MAX_X = 1000;
     int CAM_MAX_Y = 1000;
     int CAM_MAX_Z = 1000;
-    float CAM_NOISE_AMOUNT = 1.0;
-    int CAM_SPEED = 5;
-    float LOOK_AT_SCALE = 0.5;
-    float LOOK_AT_SPEED = 1.5;
-    float ROLL_SPEED = 0.01;
+    
+    int DEFAULT_CAM_SPEED = 5;
+    float DEFAULT_LOOK_AT_SCALE = 0.5;
+    float DEFAULT_LOOK_AT_SPEED = 1.5;
+    float DEFAULT_ROLL_SPEED = 0.01;
+    
+    int FAST_CAM_SPEED = 50;
+    float FAST_LOOK_AT_SCALE = 5.0;
+    float FAST_LOOK_AT_SPEED = 15.0;
+    float FAST_ROLL_SPEED = 0.1;
+
+    
+    int camSpeed = DEFAULT_CAM_SPEED;
+    float lookAtScale = DEFAULT_LOOK_AT_SCALE;
+    float lookAtSpeed = DEFAULT_LOOK_AT_SPEED;
+    float rollSpeed = DEFAULT_ROLL_SPEED;
     
     ofVec3f CENTER = ofVec3f(0, 0, 0);
     ofVec3f targetUpVec = ofVec3f(0,1,0);
