@@ -10,10 +10,12 @@
 #include "ofxMidiSequenceRecorder.h"
 #include "ofxMidiSequencePlayer.h"
 #include "Tower.h"
+#include "ofxPostGlitch.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
     
 public:
+    ofApp();
     void setup();
     void exit();
     void update();
@@ -75,5 +77,10 @@ private:
     // towers
     Tower tower;
     
+    // post procesing
+    ofxPostGlitch postGlitch;
+    ofFbo fbo;
+    
+    // debug
     string debugMessage();
 };

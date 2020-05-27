@@ -17,7 +17,20 @@ int kinectStep = 2;
 int numberWidth = 8;
 int midiFrameStart = 0;
 
-//--------------------------------------------------------------
+ofApp::ofApp() {
+    // effects
+    postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_GLOW, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SHAKER, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER, false);
+    postGlitch.setFx(OFXPOSTGLITCH_TWIST, false);
+    postGlitch.setFx(OFXPOSTGLITCH_OUTLINE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_NOISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SWELL, false);
+    postGlitch.setFx(OFXPOSTGLITCH_INVERT, false);
+}
+
 void ofApp::setup(){
     
     using namespace std::chrono;
@@ -60,10 +73,15 @@ void ofApp::setup(){
     cam.setNearClip(0);
     cam.setFarClip(100000);
     
+    // effects
+    fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGB, 4);
+    postGlitch.setup(&fbo);
+    
     // other things
     ofEnableAlphaBlending();
     ofEnableDepthTest();
     ofSetFrameRate(30);
+    ofDisableArbTex();
 }
 
 void ofApp::exit(){
@@ -90,22 +108,29 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofEnableDepthTest();
     if (midiPlayerActive) {
         for (auto midiMessage : midiPlayer.getNextMidiMessages()) {
             newMidiMessage(midiMessage);
         }
     }
     
+    ofEnableDepthTest();
+    
+    fbo.begin();
     cam.begin();
+    ofClear(0,0,0,255);
     drawKinect();
     tower.draw();
     if (debugMode) {
         ofDrawAxis(200);
     }
     cam.end();
+    fbo.end();
     
-    
+    postGlitch.generateFx();
+    ofSetColor(255);
+    fbo.draw(0,0);
+
     
     // capture the image if recording is started
     // this can slow down the rendering by a lot, so be aware of the framerate...
@@ -118,6 +143,8 @@ void ofApp::draw(){
     if (kinectRecordingActive) {
         kinectRecorder.addFrame(kinect.getRawDepthPixels());
     }
+    
+    
     
     if (debugMode) {
         ofDrawBitmapString(debugMessage(), 20, 652);
@@ -170,6 +197,17 @@ void ofApp::keyPressed(int key) {
         default:
             break;
     }
+    
+    if (key == '!') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE    , true);
+    if (key == '@') postGlitch.setFx(OFXPOSTGLITCH_GLOW            , true);
+    if (key == '#') postGlitch.setFx(OFXPOSTGLITCH_SHAKER            , true);
+    if (key == '$') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER        , true);
+    if (key == '%') postGlitch.setFx(OFXPOSTGLITCH_TWIST            , true);
+    if (key == '^') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE        , true);
+    if (key == '&') postGlitch.setFx(OFXPOSTGLITCH_NOISE            , true);
+    if (key == '*') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN        , true);
+    if (key == '(') postGlitch.setFx(OFXPOSTGLITCH_SWELL            , true);
+    if (key == ')') postGlitch.setFx(OFXPOSTGLITCH_INVERT            , true);
 }
 
 void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
@@ -250,7 +288,16 @@ void ofApp::toggleMidiRecording(){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    
+    if (key == '!') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE    , false);
+    if (key == '@') postGlitch.setFx(OFXPOSTGLITCH_GLOW            , false);
+    if (key == '#') postGlitch.setFx(OFXPOSTGLITCH_SHAKER            , false);
+    if (key == '$') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER        , false);
+    if (key == '%') postGlitch.setFx(OFXPOSTGLITCH_TWIST            , false);
+    if (key == '^') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE        , false);
+    if (key == '&') postGlitch.setFx(OFXPOSTGLITCH_NOISE            , false);
+    if (key == '*') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN        , false);
+    if (key == '(') postGlitch.setFx(OFXPOSTGLITCH_SWELL            , false);
+    if (key == ')') postGlitch.setFx(OFXPOSTGLITCH_INVERT            , false);
 }
 
 //--------------------------------------------------------------

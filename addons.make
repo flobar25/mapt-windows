@@ -2,3 +2,4 @@ ofxImageSequenceRecorder
 ofxKinect
 ofxMidi
 ofxOpenCv
+ofxPostGlitch

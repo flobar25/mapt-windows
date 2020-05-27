@@ -16,7 +16,7 @@ public:
         shader.setGeometryInputType(GL_LINES);
         shader.setGeometryOutputType(GL_LINE_STRIP);
         shader.setGeometryOutputCount(floorCount);
-        shader.load("shaders/multiplyShaderVert.c", "shaders/multiplyShaderFrag.c", "shaders/multiplyShaderGeo.c");
+        shader.load("myshaders/multiplyShaderVert.c", "myshaders/multiplyShaderFrag.c", "myshaders/multiplyShaderGeo.c");
         
         mesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_LINES);
         mesh.addVertex(position);

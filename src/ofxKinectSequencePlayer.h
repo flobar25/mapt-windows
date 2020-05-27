@@ -32,12 +32,12 @@ public:
         stretchShader.setGeometryInputType(GL_POINTS);
         stretchShader.setGeometryOutputType(GL_LINE_STRIP);
         stretchShader.setGeometryOutputCount(2);
-        stretchShader.load("shaders/stretchShaderVert.c", "shaders/stretchShaderFrag.c", "shaders/stretchShaderGeo.c");
+        stretchShader.load("myshaders/stretchShaderVert.c", "myshaders/stretchShaderFrag.c", "myshaders/stretchShaderGeo.c");
         
         explodingShader.setGeometryInputType(GL_TRIANGLES);
         explodingShader.setGeometryOutputType(GL_TRIANGLE_STRIP);
         explodingShader.setGeometryOutputCount(3);
-        explodingShader.load("shaders/explodingShaderVert.c", "shaders/explodingShaderFrag.c", "shaders/explodingShaderGeo.c");
+        explodingShader.load("myshaders/explodingShaderVert.c", "myshaders/explodingShaderFrag.c", "myshaders/explodingShaderGeo.c");
     }
     
     ofMesh getNextImage() {
