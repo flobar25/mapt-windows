@@ -11,6 +11,7 @@
 #include "ofxMidiSequencePlayer.h"
 #include "Tower.h"
 #include "ofxPostGlitch.h"
+#include "MyCamera.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
     
@@ -61,7 +62,7 @@ private:
     ofxMidiSequencePlayer midiPlayer;
     
     // camera
-    ofEasyCam cam;
+    MyCamera cam;
     
     // recording
     ofxImageSequenceRecorder recorder;

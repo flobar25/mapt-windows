@@ -27,8 +27,16 @@ ofApp::ofApp() {
     postGlitch.setFx(OFXPOSTGLITCH_OUTLINE, false);
     postGlitch.setFx(OFXPOSTGLITCH_NOISE, false);
     postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN_ROT, false);
     postGlitch.setFx(OFXPOSTGLITCH_SWELL, false);
     postGlitch.setFx(OFXPOSTGLITCH_INVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT, false);
 }
 
 void ofApp::setup(){
@@ -102,7 +110,7 @@ void ofApp::update(){
         strm << "fps: " << ofGetFrameRate();
         ofSetWindowTitle(strm.str());
     }
-    
+    cam.update();
     updateKinect();
 }
 
@@ -130,7 +138,7 @@ void ofApp::draw(){
     postGlitch.generateFx();
     ofSetColor(255);
     fbo.draw(0,0);
-
+    
     
     // capture the image if recording is started
     // this can slow down the rendering by a lot, so be aware of the framerate...
@@ -154,60 +162,42 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key) {
     switch (key) {
-        case 'q':
-            toggleRecording();
-            break;
-        case 'w':
-            captureScreen();
-            break;
-        case 'a':
-            toggleKinect();
-            break;
-        case 's':
-            toggleKinectRecording();
-            break;
-        case 'd':
-            toggleKinectPlayer();
-            break;
-        case 'z':
-            toggleDebugMode();
-            break;
-        case 'i':
-            toggleMidiRecording();
-            break;
-        case 'o':
-            toggleMidiPlayer();
-            break;
-        case '`':
-            kinectPlayer1.toggleNoEffect();
-            break;
-            
-        case '1':
-            kinectPlayer1.toggleStretch();
-            break;
-        case '2':
-            kinectPlayer1.toggleStrips();
-            break;
-        case '3':
-            kinectPlayer1.toggleExplosion();
-            break;
-        case '4':
-            tower.toggleMove();
-            break;
-        default:
-            break;
+        case 'q': toggleRecording(); break;
+        case 'w': captureScreen(); break;
+        case 'a': toggleKinect(); break;
+        case 's': toggleKinectRecording(); break;
+        case 'd': toggleKinectPlayer(); break;
+        case 'z': toggleDebugMode(); break;
+        case 'i': toggleMidiRecording(); break;
+        case 'o': toggleMidiPlayer(); break;
+        case '`': kinectPlayer1.toggleNoEffect(); break;
+        case 'j': cam.setRandomCamPosition(); break;
+        case '1': kinectPlayer1.toggleStretch(); break;
+        case '2': kinectPlayer1.toggleStrips(); break;
+        case '3': kinectPlayer1.toggleExplosion(); break;
+        case '4': tower.toggleMove(); break;
+        default: break;
     }
     
-    if (key == '!') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE    , true);
-    if (key == '@') postGlitch.setFx(OFXPOSTGLITCH_GLOW            , true);
-    if (key == '#') postGlitch.setFx(OFXPOSTGLITCH_SHAKER            , true);
-    if (key == '$') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER        , true);
-    if (key == '%') postGlitch.setFx(OFXPOSTGLITCH_TWIST            , true);
-    if (key == '^') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE        , true);
-    if (key == '&') postGlitch.setFx(OFXPOSTGLITCH_NOISE            , true);
-    if (key == '*') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN        , true);
-    if (key == '(') postGlitch.setFx(OFXPOSTGLITCH_SWELL            , true);
-    if (key == ')') postGlitch.setFx(OFXPOSTGLITCH_INVERT            , true);
+    if (key == 'Q') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, true);
+    if (key == 'W') postGlitch.setFx(OFXPOSTGLITCH_GLOW, true);
+    if (key == 'E') postGlitch.setFx(OFXPOSTGLITCH_SHAKER, true);
+    if (key == 'R') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER, true);
+    if (key == 'T') postGlitch.setFx(OFXPOSTGLITCH_TWIST, true);
+    if (key == 'Y') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE, true);
+    if (key == 'U') postGlitch.setFx(OFXPOSTGLITCH_NOISE, true);
+    if (key == 'I') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN, true);
+    if (key == 'O') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN_ROT, true);
+    if (key == 'P') postGlitch.setFx(OFXPOSTGLITCH_SWELL, true);
+    if (key == 'A') postGlitch.setFx(OFXPOSTGLITCH_INVERT, true);
+    if (key == 'S') postGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, true);
+    if (key == 'D') postGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE, true);
+    if (key == 'F') postGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE, true);
+    if (key == 'G') postGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE, true);
+    if (key == 'H') postGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT, true);
+    if (key == 'J') postGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT, true);
+    if (key == 'K') postGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT, true);
+    
 }
 
 void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
@@ -288,16 +278,25 @@ void ofApp::toggleMidiRecording(){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-    if (key == '!') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE    , false);
-    if (key == '@') postGlitch.setFx(OFXPOSTGLITCH_GLOW            , false);
-    if (key == '#') postGlitch.setFx(OFXPOSTGLITCH_SHAKER            , false);
-    if (key == '$') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER        , false);
-    if (key == '%') postGlitch.setFx(OFXPOSTGLITCH_TWIST            , false);
-    if (key == '^') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE        , false);
-    if (key == '&') postGlitch.setFx(OFXPOSTGLITCH_NOISE            , false);
-    if (key == '*') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN        , false);
-    if (key == '(') postGlitch.setFx(OFXPOSTGLITCH_SWELL            , false);
-    if (key == ')') postGlitch.setFx(OFXPOSTGLITCH_INVERT            , false);
+    if (key == 'Q') postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, false);
+    if (key == 'W') postGlitch.setFx(OFXPOSTGLITCH_GLOW, false);
+    if (key == 'E') postGlitch.setFx(OFXPOSTGLITCH_SHAKER, false);
+    if (key == 'R') postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER, false);
+    if (key == 'T') postGlitch.setFx(OFXPOSTGLITCH_TWIST, false);
+    if (key == 'Y') postGlitch.setFx(OFXPOSTGLITCH_OUTLINE, false);
+    if (key == 'U') postGlitch.setFx(OFXPOSTGLITCH_NOISE, false);
+    if (key == 'I') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN, false);
+    if (key == 'O') postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN_ROT, false);
+    if (key == 'P') postGlitch.setFx(OFXPOSTGLITCH_SWELL, false);
+    if (key == 'A') postGlitch.setFx(OFXPOSTGLITCH_INVERT, false);
+    if (key == 'S') postGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, false);
+    if (key == 'D') postGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE, false);
+    if (key == 'F') postGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE, false);
+    if (key == 'G') postGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE, false);
+    if (key == 'H') postGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT, false);
+    if (key == 'J') postGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT, false);
+    if (key == 'K') postGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT, false);
+    
 }
 
 //--------------------------------------------------------------
