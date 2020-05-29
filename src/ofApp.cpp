@@ -1,23 +1,6 @@
 #include "ofApp.h"
 #include <chrono>
 
-
-bool debugMode = true;
-bool recording = false;
-bool kinectActive = false;
-bool kinectRecordingActive = false;
-bool kinectPlayerActive = false;
-bool midiRecordingActive = false;
-bool midiPlayerActive = false;
-
-int kinectCurrentFramePlayed = 0;
-int kinectWidth = 640;
-int kinectHeight = 480;
-int kinectStep = 2;
-int numberWidth = 8;
-int midiFrameStart = 0;
-bool started = false;
-
 // input parameters
 int SPACE_WIDTH = 10000;
 int SPACE_LENGTH = 10000;
@@ -29,7 +12,29 @@ int TOWER_MIN_WIDTH = 150;
 int TOWER_MAX_WIDTH = 400;
 int TOWER_MIN_LENGTH = 150;
 int TOWER_MAX_LENGTH = 400;
-int KINECT_PLAYERS_COUNT = 50;
+int FACES_COUNT = 10;
+
+// faces
+int currentPlayedFace = -1;
+int faceDistance = 500;
+
+bool debugMode = true;
+bool recording = false;
+bool kinectActive = false;
+bool kinectRecordingActive = false;
+bool midiRecordingActive = false;
+bool midiPlayerActive = false;
+
+int kinectCurrentFramePlayed = 0;
+int kinectWidth = 640;
+int kinectHeight = 480;
+int kinectStep = 2;
+int numberWidth = 8;
+int midiFrameStart = 0;
+bool started = false;
+
+
+
 
 
 ofApp::ofApp() {
@@ -72,14 +77,6 @@ void ofApp::setup(){
     midiRecorder.openFile(ofToDataPath(ofToDataPath("recording/" + ofToString(ms.count()) + "/midi/recording.txt")));
     midiRecorder.startThread();
     
-    kinectPlayer1.cropRight = 220;
-    kinectPlayer1.cropLeft = 0;
-    kinectPlayer1.cropUp = 0;
-    kinectPlayer1.cropDown = 100;
-    kinectPlayer1.cropNear = 200;
-    kinectPlayer1.cropFar = 1000;
-    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
-    
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     // towers
@@ -94,6 +91,19 @@ void ofApp::setup(){
                     ofPoint(-50,0,0) // displacement vector
                     );
         towers.push_back(tower);
+    }
+    
+    // faces
+    for (int i = 0; i < FACES_COUNT; i++){
+        ofxKinectSequencePlayer kinectPlayer;
+        kinectPlayer.cropRight = 220;
+        kinectPlayer.cropLeft = 0;
+        kinectPlayer.cropUp = 0;
+        kinectPlayer.cropDown = 100;
+        kinectPlayer.cropNear = 200;
+        kinectPlayer.cropFar = 1000;
+        kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+        faces.push_back(kinectPlayer);
     }
     
     
@@ -141,7 +151,7 @@ void ofApp::update(){
     if (started) {
         cam.update();
         updateKinect();
-        kinectPlayer1.update();
+        updateFaces();
         updateTowers();
     }
 }
@@ -162,9 +172,12 @@ void ofApp::draw(){
     
     drawKinect();
     drawTowers();
-   
+    drawFaces();
+    
     if (debugMode) {
         ofDrawAxis(200);
+        ofSetColor(200,0,0);
+        ofDrawBox(cam.getCurrentLookAt().x, cam.getCurrentLookAt().y, cam.getCurrentLookAt().z, 20);
     }
     cam.end();
     fbo.end();
@@ -198,17 +211,17 @@ void ofApp::keyPressed(int key) {
         case 'w': captureScreen(); break;
         case 'a': toggleKinect(); break;
         case 's': toggleKinectRecording(); break;
-        case 'd': toggleKinectPlayer(); break;
+        case 'd': nextFace(); break;
         case 'z': toggleDebugMode(); break;
         case 'i': toggleMidiRecording(); break;
         case 'o': toggleMidiPlayer(); break;
-        case '`': kinectPlayer1.toggleNoEffect(); break;
         case '-': started = !started; break;
         case 'j': cam.slowMoveToRandomPosition(); break;
         case 'k': cam.fastMoveToRandomPosition(); break;
-        case '1': kinectPlayer1.toggleStretch(); break;
-        case '2': kinectPlayer1.toggleStrips(); break;
-        case '3': kinectPlayer1.toggleExplosion(); break;
+        case '`': faces[currentPlayedFace].setEffect(EffectType::NONE); break;
+        case '1': faces[currentPlayedFace].setEffect(EffectType::STRETCH); break;
+        case '2': faces[currentPlayedFace].setEffect(EffectType::STRIPS); break;
+        case '3': faces[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
         case '4': toggleTowersMove(); break;
         default: break;
     }
@@ -265,12 +278,11 @@ void ofApp::updateKinect() {
 }
 
 void ofApp::drawKinect() {
-    ofSetBackgroundColor(0);
-    ofSetColor(255);
-    
-    ofMesh mesh;
+
     if (kinectActive){
-        mesh = kinectPlayer1.convertToMesh(kinect.getRawDepthPixels());
+        ofSetBackgroundColor(0);
+        ofSetColor(255);
+        auto mesh = kinectPlayer.convertToMesh(kinect.getRawDepthPixels());
         glPointSize(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
@@ -280,8 +292,6 @@ void ofApp::drawKinect() {
         mesh.drawVertices();
         ofDisableDepthTest();
         ofPopMatrix();
-    } else if (kinectPlayerActive) {
-        kinectPlayer1.draw();
     }
 }
 
@@ -293,13 +303,6 @@ void ofApp::toggleKinectRecording(){
     kinectRecordingActive = !kinectRecordingActive;
 }
 
-void ofApp::toggleKinectPlayer(){
-    kinectPlayerActive = !kinectPlayerActive;
-    if (kinectPlayerActive){
-        kinectActive = false;
-        kinectRecordingActive = false;
-    }
-}
 
 void ofApp::updateTowers(){
     for (auto it = towers.begin(); it != towers.end(); it++){
@@ -318,6 +321,38 @@ void ofApp::toggleTowersMove(){
         it->toggleMove();
     }
 }
+
+void ofApp::updateFaces(){
+    for (auto it = faces.begin(); it != faces.end(); it++){
+        it->update();
+    }
+}
+void ofApp::drawFaces(){
+    for (auto it = faces.begin(); it != faces.end(); it++){
+        it->draw();
+    }
+}
+void ofApp::nextFace(){
+    if (currentPlayedFace >= 0) {
+        setFaceEffect(currentPlayedFace, EffectType::EXPLOSION);
+    }
+    
+    currentPlayedFace++;
+    if (currentPlayedFace == FACES_COUNT) {
+        currentPlayedFace = 0;
+    }
+    
+    setFaceEffect(currentPlayedFace, EffectType::NONE);
+    auto pos = (cam.getCurrentLookAt() - cam.getPosition()).normalize() * faceDistance + cam.getPosition();
+    //cam.getOrientationEulerDeg()
+    
+    faces[currentPlayedFace].setPosition(pos.x, pos.y, pos.z);
+}
+
+void ofApp::setFaceEffect(int faceIdx, EffectType effect){
+    faces[faceIdx].setEffect(effect);
+}	
+
 
 void ofApp::toggleDebugMode() {
     debugMode = !debugMode;
@@ -410,7 +445,6 @@ string ofApp::debugMessage() {
     << "w: screenshot" << endl
     << "a: activate kinect : " << ofToString(kinectActive) << endl
     << "s: trigger kinect recording " << ofToString(kinectRecordingActive) << endl
-    << "d: activate kinect player " << ofToString(kinectPlayerActive) << endl
     << "i: toggle midi recording :  " << ofToString(midiRecordingActive) << endl
     << "o: toggle midi player :  " << ofToString(midiPlayerActive) << endl
     << "z: toggle debug :  " << ofToString(debugMode) << endl;

@@ -11,7 +11,8 @@ enum EffectType {
 class ofxKinectSequencePlayer  {
 public:
     
-    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath){
+    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int s = 2){
+        scale = 2;
         // load texture
         texture.load(imagePath);
         texture.resize(width, height);
@@ -84,10 +85,11 @@ public:
         glPointSize(1);
         ofSetLineWidth(1);
         ofPushMatrix();
-        // the projected points are 'upside down' and 'backwards'
+        // the projected points are 'upside down' and 'backwardss'
         ofScale(1, -1, -1);
-        ofScale(scale);
-        ofTranslate(-220 + position.x, -400 + position.y, -1000 + position.z); // center the points a bit
+//        ofScale(scale);
+        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z); // center the points a bit
+//        ofTranslate(position.x, position.y, position.z);
         
         auto time = currentFrame - effectStartFrame;
         ofMesh currentMesh;
@@ -121,6 +123,7 @@ public:
                 currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
                 currentMesh.drawVertices();
                 explodingShader.end();
+                break;
             case EffectType::INVISIBLE:
                 // draw nothing
                 break;
@@ -138,26 +141,38 @@ public:
         position = ofVec3f(position.x + x, position.y + y, position.z + z);
     }
     
-    void toggleStretch() {
-        currentEffect = EffectType::STRETCH;
-        effectStartFrame = currentFrame - 1;
-        stretchTargetPosition = ofVec3f(ofRandom(200) - 100, ofRandom(200) - 100, ofRandom(200) - 100).normalize() * stretchLineLength;
+    void rotate(ofVec3f vec){
+        
     }
     
-    void toggleStrips(){
-        currentEffect = EffectType::STRIPS;
-        effectStartFrame = currentFrame - 1;
+    void setEffect(EffectType effect){
+        switch (effect) {
+            case EffectType::NONE:
+                currentEffect = EffectType::NONE;
+                effectStartFrame = -1;
+                break;
+            case EffectType::STRETCH:
+                currentEffect = EffectType::STRETCH;
+                effectStartFrame = currentFrame - 1;
+                stretchTargetPosition = ofVec3f(ofRandom(200) - 100, ofRandom(200) - 100, ofRandom(200) - 100).normalize() * stretchLineLength;
+                break;
+            case EffectType::STRIPS:
+                currentEffect = EffectType::STRIPS;
+                effectStartFrame = currentFrame - 1;
+                break;
+            case EffectType::EXPLOSION:
+                currentEffect = EffectType::EXPLOSION;
+                effectStartFrame = currentFrame - 1;
+                break;
+            case EffectType::INVISIBLE:
+                currentEffect = EffectType::INVISIBLE;
+                effectStartFrame = currentFrame - 1;
+                break;
+            default:
+                break;
+        }
     }
     
-    void toggleExplosion() {
-        currentEffect = EffectType::EXPLOSION;
-        effectStartFrame = currentFrame - 1;
-    }
-    
-    void toggleNoEffect() {
-        currentEffect = EffectType::NONE;
-        effectStartFrame = -1;
-    }
     
     // crop
     int cropRight = 0;
@@ -166,7 +181,7 @@ public:
     int cropDown = 0;
     int cropNear = 0;
     int cropFar = 1000;
-    int scale = 2;
+    int scale;
     
 private:
     vector<ofMesh> frames;
@@ -174,7 +189,7 @@ private:
     int currentPlayedFrame = 0;
     int kinectHeight;
     int kinectWidth;
-    int intensityThreshold;
+    int intensityThreshold = 100;
     ofImage texture;
     ofVec3f position = ofVec3f(0,0,0);
     

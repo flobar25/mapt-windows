@@ -73,6 +73,22 @@ public:
         setRandomCamPosition();
     }
     
+    ofVec3f getTargetPosition(){
+        return targetPosition;
+    }
+    
+    ofVec3f getTargetLookAt(){
+        return targetLookAt;
+    }
+    
+    ofVec3f getCurrentLookAt(){
+        return currentLookAt;
+    }
+    
+    ofVec3f getCurrentUpVec() {
+        return currentUpVec;
+    }
+    
 private:
     bool started = false;
     int CAM_MAX_X = 1000;

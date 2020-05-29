@@ -37,14 +37,19 @@ public:
     void updateKinect();
     void drawKinect();
     void toggleKinectRecording();
-    void toggleKinectPlayer();
     
     // towers
     void updateTowers();
     void drawTowers();
     void toggleTowersMove();
 
-
+    // faces
+    void updateFaces();
+    void drawFaces();
+    void nextFace();
+    void setFaceEffect(int faceIdx, EffectType effect);
+    
+    
     void toggleDebugMode();
     void keyPressed(int key);
     void keyReleased(int key);
@@ -78,12 +83,13 @@ private:
     
     // kinect
     ofxKinect kinect;
+    ofxKinectSequencePlayer kinectPlayer;
     
     // towers
     vector<Tower> towers;
     
     // kinect plauers
-    ofxKinectSequencePlayer kinectPlayer1;
+    vector<ofxKinectSequencePlayer> faces;
     
     // post procesing
     ofxPostGlitch postGlitch;

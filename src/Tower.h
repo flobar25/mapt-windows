@@ -35,7 +35,6 @@ public:
         mesh.addIndex(3);
         mesh.addIndex(3);
         mesh.addIndex(0);
-
     }
     
     void update() {
