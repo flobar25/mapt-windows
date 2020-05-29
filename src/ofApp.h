@@ -38,6 +38,11 @@ public:
     void drawKinect();
     void toggleKinectRecording();
     void toggleKinectPlayer();
+    
+    // towers
+    void updateTowers();
+    void drawTowers();
+    void toggleTowersMove();
 
 
     void toggleDebugMode();
@@ -70,13 +75,15 @@ private:
     
     // kinect recording
     ofxKinectSequenceRecorder kinectRecorder;
-    ofxKinectSequencePlayer kinectPlayer1;
     
     // kinect
     ofxKinect kinect;
     
     // towers
-    Tower tower;
+    vector<Tower> towers;
+    
+    // kinect plauers
+    ofxKinectSequencePlayer kinectPlayer1;
     
     // post procesing
     ofxPostGlitch postGlitch;

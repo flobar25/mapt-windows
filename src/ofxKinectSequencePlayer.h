@@ -4,7 +4,8 @@ enum EffectType {
     NONE,
     STRETCH,
     STRIPS,
-    EXPLOSION
+    EXPLOSION,
+    INVISIBLE
 };
 
 class ofxKinectSequencePlayer  {
@@ -40,12 +41,8 @@ public:
         explodingShader.load("myshaders/explodingShaderVert.c", "myshaders/explodingShaderFrag.c", "myshaders/explodingShaderGeo.c");
     }
     
-    ofMesh getNextImage() {
-        return frames.at(currentPlayedFrame++ % frames.size());
-    }
-    
-    ofMesh getCurrentImage() {
-        return frames.at(currentPlayedFrame % frames.size());
+    ofMesh getImage(int frameNumber){
+        return frames.at(frameNumber % frames.size());
     }
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
@@ -79,23 +76,30 @@ public:
         return mesh;
     }
     
-    void draw() {
+    void update() {
         currentFrame++;
+    }
+    
+    void draw() {
         glPointSize(1);
         ofSetLineWidth(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
         ofScale(1, -1, -1);
+        ofScale(scale);
         ofTranslate(-220 + position.x, -400 + position.y, -1000 + position.z); // center the points a bit
         
         auto time = currentFrame - effectStartFrame;
         ofMesh currentMesh;
         switch (currentEffect) {
             case EffectType::NONE:
-                getNextImage().drawVertices();
+                currentPlayedFrame = currentFrame;
+                currentMesh = getImage(currentPlayedFrame);
+                currentMesh.drawVertices();
                 break;
             case EffectType::STRETCH:
-                currentMesh = getNextImage();
+                currentPlayedFrame = currentFrame;
+                currentMesh = getImage(currentPlayedFrame);
                 currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_POINTS);
                 stretchShader.begin();
                 stretchShader.setUniform3f("targetPosition", stretchTargetPosition);
@@ -105,21 +109,24 @@ public:
                 stretchShader.end();
                 break;
             case EffectType::STRIPS:
-                currentMesh = getNextImage();
+                currentPlayedFrame = currentFrame;
+                currentMesh = getImage(currentPlayedFrame);
                 currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
                 currentMesh.drawWireframe();
                 break;
             case EffectType::EXPLOSION:
                 explodingShader.begin();
                 explodingShader.setUniform1f("time", time);
-                currentMesh = getCurrentImage();
+                currentMesh = getImage(currentPlayedFrame);
                 currentMesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_TRIANGLE_STRIP);
                 currentMesh.drawVertices();
                 explodingShader.end();
+            case EffectType::INVISIBLE:
+                // draw nothing
+                break;
             default:
                 break;
         }
-        
         ofPopMatrix();
     }
     
@@ -159,6 +166,7 @@ public:
     int cropDown = 0;
     int cropNear = 0;
     int cropFar = 1000;
+    int scale = 2;
     
 private:
     vector<ofMesh> frames;
@@ -171,7 +179,7 @@ private:
     ofVec3f position = ofVec3f(0,0,0);
     
     // general effects
-    EffectType currentEffect = EffectType::NONE;
+    EffectType currentEffect = EffectType::INVISIBLE;
     int effectStartFrame = -1;
     
     // stretching lines

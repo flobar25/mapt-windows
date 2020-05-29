@@ -16,6 +16,21 @@ int kinectHeight = 480;
 int kinectStep = 2;
 int numberWidth = 8;
 int midiFrameStart = 0;
+bool started = false;
+
+// input parameters
+int SPACE_WIDTH = 10000;
+int SPACE_LENGTH = 10000;
+int SPACE_HEIGHT = 500;
+int TOWER_COUNT = 50;
+int TOWER_MIN_FLOORS = 8;
+int TOWER_MAX_FLOORS = 100;
+int TOWER_MIN_WIDTH = 150;
+int TOWER_MAX_WIDTH = 400;
+int TOWER_MIN_LENGTH = 150;
+int TOWER_MAX_LENGTH = 400;
+int KINECT_PLAYERS_COUNT = 50;
+
 
 ofApp::ofApp() {
     // effects
@@ -68,7 +83,19 @@ void ofApp::setup(){
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     // towers
-    tower.setup(ofPoint(0,0,0), 50, 200, 200, 200, 0.1, ofPoint(-50,0,0));
+    for (int i = 0; i < TOWER_COUNT; i++) {
+        Tower tower;
+        tower.setup(ofPoint(ofRandom(SPACE_WIDTH) - SPACE_WIDTH / 2,0,ofRandom(SPACE_LENGTH) - SPACE_WIDTH / 2), // position
+                    ofRandom(TOWER_MAX_FLOORS - TOWER_MIN_FLOORS) + TOWER_MIN_FLOORS, // floors
+                    200, // floor height
+                    ofRandom(TOWER_MAX_LENGTH - TOWER_MIN_LENGTH) + TOWER_MIN_LENGTH, // length
+                    ofRandom(TOWER_MAX_WIDTH - TOWER_MIN_WIDTH) + TOWER_MIN_WIDTH, // width
+                    0.1, // displacement rate
+                    ofPoint(-50,0,0) // displacement vector
+                    );
+        towers.push_back(tower);
+    }
+    
     
     // midi
     midiIn.openPort(0);
@@ -110,8 +137,13 @@ void ofApp::update(){
         strm << "fps: " << ofGetFrameRate();
         ofSetWindowTitle(strm.str());
     }
-    cam.update();
-    updateKinect();
+    
+    if (started) {
+        cam.update();
+        updateKinect();
+        kinectPlayer1.update();
+        updateTowers();
+    }
 }
 
 //--------------------------------------------------------------
@@ -127,8 +159,10 @@ void ofApp::draw(){
     fbo.begin();
     cam.begin();
     ofClear(0,0,0,255);
+    
     drawKinect();
-    tower.draw();
+    drawTowers();
+   
     if (debugMode) {
         ofDrawAxis(200);
     }
@@ -152,8 +186,6 @@ void ofApp::draw(){
         kinectRecorder.addFrame(kinect.getRawDepthPixels());
     }
     
-    
-    
     if (debugMode) {
         ofDrawBitmapString(debugMessage(), 20, 652);
     }
@@ -171,12 +203,13 @@ void ofApp::keyPressed(int key) {
         case 'i': toggleMidiRecording(); break;
         case 'o': toggleMidiPlayer(); break;
         case '`': kinectPlayer1.toggleNoEffect(); break;
+        case '-': started = !started; break;
         case 'j': cam.slowMoveToRandomPosition(); break;
         case 'k': cam.fastMoveToRandomPosition(); break;
         case '1': kinectPlayer1.toggleStretch(); break;
         case '2': kinectPlayer1.toggleStrips(); break;
         case '3': kinectPlayer1.toggleExplosion(); break;
-        case '4': tower.toggleMove(); break;
+        case '4': toggleTowersMove(); break;
         default: break;
     }
     
@@ -265,6 +298,24 @@ void ofApp::toggleKinectPlayer(){
     if (kinectPlayerActive){
         kinectActive = false;
         kinectRecordingActive = false;
+    }
+}
+
+void ofApp::updateTowers(){
+    for (auto it = towers.begin(); it != towers.end(); it++){
+        it->update();
+    }
+}
+
+void ofApp::drawTowers(){
+    for (auto it = towers.begin(); it != towers.end(); it++){
+        it->draw();
+    }
+}
+
+void ofApp::toggleTowersMove(){
+    for (auto it = towers.begin(); it != towers.end(); it++){
+        it->toggleMove();
     }
 }
 

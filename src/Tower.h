@@ -38,6 +38,10 @@ public:
 
     }
     
+    void update() {
+        // do nothing for now
+    }
+    
     void draw() {
         if (move) {
             currentMoveFrame++;
