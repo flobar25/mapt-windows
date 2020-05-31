@@ -85,14 +85,22 @@ public:
         glPointSize(1);
         ofSetLineWidth(1);
         ofPushMatrix();
+
         // the projected points are 'upside down' and 'backwardss'
         ofScale(1, -1, -1);
-//        ofScale(scale);
+//        ofRotateXDeg(orientationEulerDeg.x);
+//        ofRotateYDeg(-orientationEulerDeg.y);
+//        ofRotateZDeg(-orientationEulerDeg.z);
+        float angle;
+        float x;
+        float y;
+        float z;
+        quaternion.getRotate(angle, x, y, z);
+        ofRotateDeg(angle, x, -y, -z);
         ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z); // center the points a bit
-//        ofTranslate(position.x, position.y, position.z);
         
         auto time = currentFrame - effectStartFrame;
-        ofMesh currentMesh;
+        ofMesh currentMesh = ofBoxPrimitive(100,100,100).getMesh();
         switch (currentEffect) {
             case EffectType::NONE:
                 currentPlayedFrame = currentFrame;
@@ -141,8 +149,12 @@ public:
         position = ofVec3f(position.x + x, position.y + y, position.z + z);
     }
     
-    void rotate(ofVec3f vec){
-        
+    void setOrientationEulerDeg(ofVec3f orientation){
+        orientationEulerDeg = ofVec3f(orientation.x,orientation.y,orientation.z);
+    }
+    
+    void setQuaternion(glm::quat q){
+        quaternion = ofQuaternion(q);
     }
     
     void setEffect(EffectType effect){
@@ -206,4 +218,10 @@ private:
     
     // explosion
     ofShader explodingShader;
+    
+    // rotation
+    ofVec3f orientationEulerDeg = ofVec3f(0,0,0);
+    ofQuaternion quaternion;
+    
+    
 };

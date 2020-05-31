@@ -60,6 +60,10 @@ ofApp::ofApp() {
 }
 
 void ofApp::setup(){
+    //camera
+    cam.setNearClip(0);
+    cam.setFarClip(100000);
+    
     
     using namespace std::chrono;
     milliseconds ms = duration_cast< seconds >(system_clock::now().time_since_epoch());
@@ -113,10 +117,6 @@ void ofApp::setup(){
     
     // kinect
     initKinect();
-    
-    //camera
-    cam.setNearClip(0);
-    cam.setFarClip(100000);
     
     // effects
     fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGB, 4);
@@ -334,7 +334,7 @@ void ofApp::drawFaces(){
 }
 void ofApp::nextFace(){
     if (currentPlayedFace >= 0) {
-        setFaceEffect(currentPlayedFace, EffectType::EXPLOSION);
+        setFaceEffect(currentPlayedFace, EffectType::INVISIBLE);
     }
     
     currentPlayedFace++;
@@ -344,9 +344,11 @@ void ofApp::nextFace(){
     
     setFaceEffect(currentPlayedFace, EffectType::NONE);
     auto pos = (cam.getCurrentLookAt() - cam.getPosition()).normalize() * faceDistance + cam.getPosition();
-    //cam.getOrientationEulerDeg()
-    
+    faces[currentPlayedFace].setOrientationEulerDeg(ofVec3f(cam.getPitchDeg(),cam.getHeadingDeg(),cam.getRollDeg()));
+    faces[currentPlayedFace].setQuaternion(cam.getOrientationQuat());
     faces[currentPlayedFace].setPosition(pos.x, pos.y, pos.z);
+    //faces[currentPlayedFace].setPosition(0, 0, 0);
+
 }
 
 void ofApp::setFaceEffect(int faceIdx, EffectType effect){
