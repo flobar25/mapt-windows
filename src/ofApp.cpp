@@ -334,7 +334,7 @@ void ofApp::drawFaces(){
 }
 void ofApp::nextFace(){
     if (currentPlayedFace >= 0) {
-        setFaceEffect(currentPlayedFace, EffectType::INVISIBLE);
+        setFaceEffect(currentPlayedFace, EffectType::EXPLOSION);
     }
     
     currentPlayedFace++;
@@ -347,8 +347,6 @@ void ofApp::nextFace(){
     faces[currentPlayedFace].setOrientationEulerDeg(ofVec3f(cam.getPitchDeg(),cam.getHeadingDeg(),cam.getRollDeg()));
     faces[currentPlayedFace].setQuaternion(cam.getOrientationQuat());
     faces[currentPlayedFace].setPosition(pos.x, pos.y, pos.z);
-    //faces[currentPlayedFace].setPosition(0, 0, 0);
-
 }
 
 void ofApp::setFaceEffect(int faceIdx, EffectType effect){

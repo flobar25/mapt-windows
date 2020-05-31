@@ -88,6 +88,7 @@ public:
 
         // the projected points are 'upside down' and 'backwardss'
         ofScale(1, -1, -1);
+        ofTranslate(position.x, -position.y, -position.z);
 //        ofRotateXDeg(orientationEulerDeg.x);
 //        ofRotateYDeg(-orientationEulerDeg.y);
 //        ofRotateZDeg(-orientationEulerDeg.z);
@@ -97,7 +98,11 @@ public:
         float z;
         quaternion.getRotate(angle, x, y, z);
         ofRotateDeg(angle, x, -y, -z);
-        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z); // center the points a bit
+//        ofTranslate(500, -500, -500);
+        ofTranslate(-150, -300, -1000);
+//
+//        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z);
+//        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z); // center the points a bit
         
         auto time = currentFrame - effectStartFrame;
         ofMesh currentMesh = ofBoxPrimitive(100,100,100).getMesh();
