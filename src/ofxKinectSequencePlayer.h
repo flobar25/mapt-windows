@@ -154,10 +154,6 @@ public:
         position = ofVec3f(position.x + x, position.y + y, position.z + z);
     }
     
-    void setOrientationEulerDeg(ofVec3f orientation){
-        orientationEulerDeg = ofVec3f(orientation.x,orientation.y,orientation.z);
-    }
-    
     void setQuaternion(glm::quat q){
         quaternion = ofQuaternion(q);
     }
@@ -225,7 +221,6 @@ private:
     ofShader explodingShader;
     
     // rotation
-    ofVec3f orientationEulerDeg = ofVec3f(0,0,0);
     ofQuaternion quaternion;
     
     

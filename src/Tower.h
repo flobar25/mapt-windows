@@ -4,7 +4,8 @@
 class Tower  {
 public:
     
-    void setup(ofPoint position, int floorCount, int floorHeight, int floorLength, int floorWidth, float displacementRate, ofVec3f displacement) {
+    void setup(ofPoint position, int floorCount, int floorHeight, int floorLength, int floorWidth, float displacementRate, ofVec3f displacement, ofColor color, bool reflection, ofVec3f reflectionDisplacement,
+               ofColor reflectionColor) {
         this->floorCount = floorCount;
         this->floorHeight = floorHeight;
         this->floorLength = floorLength;
@@ -12,6 +13,9 @@ public:
         this->position = position;
         this->displacementRate = displacementRate;
         this->displacement = displacement;
+        this->reflection = reflection;
+        this->reflectionDisplacement = reflectionDisplacement;
+        this->reflectionColor = reflectionColor;
         
         shader.setGeometryInputType(GL_LINES);
         shader.setGeometryOutputType(GL_LINE_STRIP);
@@ -20,13 +24,13 @@ public:
         
         mesh.setMode(ofPrimitiveMode::OF_PRIMITIVE_LINES);
         mesh.addVertex(position);
-        mesh.addColor(ofColor(200));
+        mesh.addColor(color);
         mesh.addVertex(ofPoint(position.x + floorWidth, position.y, position.z));
-        mesh.addColor(ofColor(200));
+        mesh.addColor(color);
         mesh.addVertex(ofPoint(position.x + floorWidth, position.y, position.z + floorLength));
-        mesh.addColor(ofColor(200));
+        mesh.addColor(color);
         mesh.addVertex(ofPoint(position.x, position.y, position.z + floorLength));
-        mesh.addColor(ofColor(200));
+        mesh.addColor(color);
         mesh.addIndex(0);
         mesh.addIndex(1);
         mesh.addIndex(1);
@@ -52,6 +56,9 @@ public:
         shader.setUniform1i("currentFrame", currentMoveFrame);
         shader.setUniform1f("displacementRate", displacementRate);
         shader.setUniform3f("displacement", displacement);
+        shader.setUniform1i("reflection", reflection ? 1 : 0);
+        shader.setUniform3f("reflectionDisplacement", reflectionDisplacement);
+        shader.setUniform4f("reflectionColor", glm::vec4(reflectionColor.r, reflectionColor.g, reflectionColor.b, reflectionColor.a));
         mesh.draw();
         shader.end();
     }
@@ -76,4 +83,7 @@ private:
     ofMesh mesh;
     int move = 0;
     int currentMoveFrame = 0;
+    bool reflection;
+    ofVec3f reflectionDisplacement;
+    ofColor reflectionColor;
 };

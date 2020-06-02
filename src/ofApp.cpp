@@ -2,6 +2,7 @@
 #include <chrono>
 
 // input parameters
+int RANDOM_SEED = 67859432679;
 int SPACE_WIDTH = 10000;
 int SPACE_LENGTH = 10000;
 int SPACE_HEIGHT = 500;
@@ -12,26 +13,33 @@ int TOWER_MIN_WIDTH = 150;
 int TOWER_MAX_WIDTH = 400;
 int TOWER_MIN_LENGTH = 150;
 int TOWER_MAX_LENGTH = 400;
-int FACES_COUNT = 10;
-
-// faces
-int currentPlayedFace = -1;
-int faceDistance = 500;
+int PLAYERS1_COUNT = 10;
+int PLAYERS2_COUNT = 10;
+ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 100);
+ofColor TOWER_COLOR_1 = ofColor(225, 202, 232);
+ofColor TOWER_REFLECTION_COLOR_1 = ofColor(0, 202, 0, 0.5);
 
 bool debugMode = true;
+bool started = false;
 bool recording = false;
+
+// kinect cam
 bool kinectActive = false;
 bool kinectRecordingActive = false;
-bool midiRecordingActive = false;
-bool midiPlayerActive = false;
-
 int kinectCurrentFramePlayed = 0;
 int kinectWidth = 640;
 int kinectHeight = 480;
 int kinectStep = 2;
 int numberWidth = 8;
+
+// midi
+bool midiRecordingActive = false;
+bool midiPlayerActive = false;
 int midiFrameStart = 0;
-bool started = false;
+
+// kinect players
+vector<int> currentPlayedIndices;
+int playerDistance = 500;
 
 
 
@@ -63,6 +71,7 @@ void ofApp::setup(){
     //camera
     cam.setNearClip(0);
     cam.setFarClip(100000);
+    ofSeedRandom(RANDOM_SEED);
     
     
     using namespace std::chrono;
@@ -92,13 +101,18 @@ void ofApp::setup(){
                     ofRandom(TOWER_MAX_LENGTH - TOWER_MIN_LENGTH) + TOWER_MIN_LENGTH, // length
                     ofRandom(TOWER_MAX_WIDTH - TOWER_MIN_WIDTH) + TOWER_MIN_WIDTH, // width
                     0.1, // displacement rate
-                    ofPoint(-50,0,0) // displacement vector
+                    ofPoint(-50,0,0), // displacement vector
+                    TOWER_COLOR_1,
+                    true,
+                    ofVec3f(-20, -20, 0),
+                    TOWER_REFLECTION_COLOR_1
                     );
         towers.push_back(tower);
     }
     
-    // faces
-    for (int i = 0; i < FACES_COUNT; i++){
+
+    vector<ofxKinectSequencePlayer> players1;
+    for (int i = 0; i < PLAYERS1_COUNT; i++){
         ofxKinectSequencePlayer kinectPlayer;
         kinectPlayer.cropRight = 220;
         kinectPlayer.cropLeft = 0;
@@ -107,8 +121,25 @@ void ofApp::setup(){
         kinectPlayer.cropNear = 200;
         kinectPlayer.cropFar = 1000;
         kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
-        faces.push_back(kinectPlayer);
+        players1.push_back(kinectPlayer);
     }
+    players.push_back(players1);
+    currentPlayedIndices.push_back(-1);
+    
+    vector<ofxKinectSequencePlayer> players2;
+    for (int i = 0; i < PLAYERS1_COUNT; i++){
+        ofxKinectSequencePlayer kinectPlayer;
+        kinectPlayer.cropRight = 220;
+        kinectPlayer.cropLeft = 0;
+        kinectPlayer.cropUp = 0;
+        kinectPlayer.cropDown = 100;
+        kinectPlayer.cropNear = 200;
+        kinectPlayer.cropFar = 1000;
+        kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg");
+        players2.push_back(kinectPlayer);
+    }
+    players.push_back(players2);
+    currentPlayedIndices.push_back(-1);
     
     
     // midi
@@ -141,17 +172,17 @@ void ofApp::exit(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    if (debugMode) {
+//    if (debugMode) {
         // show the framerate on window title
         std::stringstream strm;
         strm << "fps: " << ofGetFrameRate();
         ofSetWindowTitle(strm.str());
-    }
+//    }
     
     if (started) {
         cam.update();
         updateKinect();
-        updateFaces();
+        updatePlayers();
         updateTowers();
     }
 }
@@ -169,10 +200,11 @@ void ofApp::draw(){
     fbo.begin();
     cam.begin();
     ofClear(0,0,0,255);
+    ofBackground(BACKGROUND_COLOR_1);
     
     drawKinect();
     drawTowers();
-    drawFaces();
+    drawPlayers();
     
     if (debugMode) {
         ofDrawAxis(200);
@@ -211,17 +243,18 @@ void ofApp::keyPressed(int key) {
         case 'w': captureScreen(); break;
         case 'a': toggleKinect(); break;
         case 's': toggleKinectRecording(); break;
-        case 'd': nextFace(); break;
+        case 'd': nextPlayer(0); break;
+        case 'f': nextPlayer(1); break;
         case 'z': toggleDebugMode(); break;
         case 'i': toggleMidiRecording(); break;
         case 'o': toggleMidiPlayer(); break;
         case '-': started = !started; break;
         case 'j': cam.slowMoveToRandomPosition(); break;
         case 'k': cam.fastMoveToRandomPosition(); break;
-        case '`': faces[currentPlayedFace].setEffect(EffectType::NONE); break;
-        case '1': faces[currentPlayedFace].setEffect(EffectType::STRETCH); break;
-        case '2': faces[currentPlayedFace].setEffect(EffectType::STRIPS); break;
-        case '3': faces[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
+//        case '`': sePlayertEffect(EffectType::NONE); break;
+//        case '1': players1[currentPlayedFace].setEffect(EffectType::STRETCH); break;
+//        case '2': players1[currentPlayedFace].setEffect(EffectType::STRIPS); break;
+//        case '3': players1[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
         case '4': toggleTowersMove(); break;
         default: break;
     }
@@ -322,35 +355,43 @@ void ofApp::toggleTowersMove(){
     }
 }
 
-void ofApp::updateFaces(){
-    for (auto it = faces.begin(); it != faces.end(); it++){
-        it->update();
+void ofApp::updatePlayers(){
+    for (auto it = players.begin(); it != players.end(); it++){
+        for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+            subIt->update();
+        }
     }
 }
-void ofApp::drawFaces(){
-    for (auto it = faces.begin(); it != faces.end(); it++){
-        it->draw();
+void ofApp::drawPlayers(){
+    for (auto it = players.begin(); it != players.end(); it++){
+        for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+            subIt->draw();
+        }
     }
-}
-void ofApp::nextFace(){
-    if (currentPlayedFace >= 0) {
-        setFaceEffect(currentPlayedFace, EffectType::EXPLOSION);
-    }
-    
-    currentPlayedFace++;
-    if (currentPlayedFace == FACES_COUNT) {
-        currentPlayedFace = 0;
-    }
-    
-    setFaceEffect(currentPlayedFace, EffectType::NONE);
-    auto pos = (cam.getCurrentLookAt() - cam.getPosition()).normalize() * faceDistance + cam.getPosition();
-    faces[currentPlayedFace].setOrientationEulerDeg(ofVec3f(cam.getPitchDeg(),cam.getHeadingDeg(),cam.getRollDeg()));
-    faces[currentPlayedFace].setQuaternion(cam.getOrientationQuat());
-    faces[currentPlayedFace].setPosition(pos.x, pos.y, pos.z);
 }
 
-void ofApp::setFaceEffect(int faceIdx, EffectType effect){
-    faces[faceIdx].setEffect(effect);
+
+void ofApp::nextPlayer(int playerGroupIdx){
+    int currentPlayerIdx = currentPlayedIndices[playerGroupIdx];
+    
+    if (currentPlayerIdx >= 0) {
+        setPlayerEffect(playerGroupIdx, currentPlayerIdx, EffectType::EXPLOSION);
+    }
+    
+    currentPlayerIdx++;
+    if (currentPlayerIdx == players[playerGroupIdx].size()) {
+        currentPlayerIdx = 0;
+    }
+    
+    setPlayerEffect(playerGroupIdx, currentPlayerIdx, EffectType::NONE);
+    auto pos = (cam.getCurrentLookAt() - cam.getPosition()).normalize() * playerDistance + cam.getPosition();
+    players[playerGroupIdx][currentPlayerIdx].setQuaternion(cam.getOrientationQuat());
+    players[playerGroupIdx][currentPlayerIdx].setPosition(pos.x, pos.y, pos.z);
+    currentPlayedIndices[playerGroupIdx] = currentPlayerIdx;
+}
+
+void ofApp::setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect){
+    players[playerGroupIdx][playerIdx].setEffect(effect);
 }	
 
 
