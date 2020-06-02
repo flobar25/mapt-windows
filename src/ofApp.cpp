@@ -6,7 +6,8 @@ int RANDOM_SEED = 67859432679;
 int SPACE_WIDTH = 10000;
 int SPACE_LENGTH = 10000;
 int SPACE_HEIGHT = 500;
-int TOWER_COUNT = 50;
+int TOWER_COUNT_1 = 50;
+int TOWER_COUNT_2 = 50;
 int TOWER_MIN_FLOORS = 8;
 int TOWER_MAX_FLOORS = 100;
 int TOWER_MIN_WIDTH = 150;
@@ -18,6 +19,8 @@ int PLAYERS2_COUNT = 10;
 ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 100);
 ofColor TOWER_COLOR_1 = ofColor(225, 202, 232);
 ofColor TOWER_REFLECTION_COLOR_1 = ofColor(0, 202, 0, 0.5);
+ofColor TOWER_COLOR_2 = ofColor(0, 202, 232);
+ofColor TOWER_REFLECTION_COLOR_2 = ofColor(0, 0, 202, 0.5);
 
 bool debugMode = true;
 bool started = false;
@@ -93,7 +96,8 @@ void ofApp::setup(){
     midiPlayer.load(ofToDataPath("recording/1590025809000/midi/recording.txt"));
     
     // towers
-    for (int i = 0; i < TOWER_COUNT; i++) {
+    vector<Tower> towers1;
+    for (int i = 0; i < TOWER_COUNT_1; i++) {
         Tower tower;
         tower.setup(ofPoint(ofRandom(SPACE_WIDTH) - SPACE_WIDTH / 2,0,ofRandom(SPACE_LENGTH) - SPACE_WIDTH / 2), // position
                     ofRandom(TOWER_MAX_FLOORS - TOWER_MIN_FLOORS) + TOWER_MIN_FLOORS, // floors
@@ -107,8 +111,28 @@ void ofApp::setup(){
                     ofVec3f(-20, -20, 0),
                     TOWER_REFLECTION_COLOR_1
                     );
-        towers.push_back(tower);
+        towers1.push_back(tower);
     }
+    towers.push_back(towers1);
+    
+    vector<Tower> towers2;
+    for (int i = 0; i < TOWER_COUNT_2; i++) {
+        Tower tower;
+        tower.setup(ofPoint(ofRandom(SPACE_WIDTH) - SPACE_WIDTH / 2,0,ofRandom(SPACE_LENGTH) - SPACE_WIDTH / 2), // position
+                    ofRandom(TOWER_MAX_FLOORS - TOWER_MIN_FLOORS) + TOWER_MIN_FLOORS, // floors
+                    200, // floor height
+                    ofRandom(TOWER_MAX_LENGTH - TOWER_MIN_LENGTH) + TOWER_MIN_LENGTH, // length
+                    ofRandom(TOWER_MAX_WIDTH - TOWER_MIN_WIDTH) + TOWER_MIN_WIDTH, // width
+                    0.1, // displacement rate
+                    ofPoint(50,70,0), // displacement vector
+                    TOWER_COLOR_2,
+                    true,
+                    ofVec3f(20, 320, 40),
+                    TOWER_REFLECTION_COLOR_2
+                    );
+        towers2.push_back(tower);
+    }
+    towers.push_back(towers2);
     
 
     vector<ofxKinectSequencePlayer> players1;
@@ -127,7 +151,7 @@ void ofApp::setup(){
     currentPlayedIndices.push_back(-1);
     
     vector<ofxKinectSequencePlayer> players2;
-    for (int i = 0; i < PLAYERS1_COUNT; i++){
+    for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer kinectPlayer;
         kinectPlayer.cropRight = 220;
         kinectPlayer.cropLeft = 0;
@@ -339,19 +363,25 @@ void ofApp::toggleKinectRecording(){
 
 void ofApp::updateTowers(){
     for (auto it = towers.begin(); it != towers.end(); it++){
-        it->update();
+        for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+            subIt->update();
+        }
     }
 }
 
 void ofApp::drawTowers(){
     for (auto it = towers.begin(); it != towers.end(); it++){
-        it->draw();
+        for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+            subIt->draw();
+        }
     }
 }
 
 void ofApp::toggleTowersMove(){
     for (auto it = towers.begin(); it != towers.end(); it++){
-        it->toggleMove();
+        for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+            subIt->toggleMove();
+        }
     }
 }
 
