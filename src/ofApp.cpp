@@ -144,7 +144,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 11500;
-    kinectPlayer1.load(ofToDataPath("recording/1591109337000/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -244,7 +244,8 @@ void ofApp::draw(){
     
     fbo.begin();
     cam.begin();
-    ofClear(0,0,0,255);
+    //ofClear(0,0,0,255);
+    ofEnableAlphaBlending();
     ofBackground(BACKGROUND_COLOR_1);
 
     drawTowers();

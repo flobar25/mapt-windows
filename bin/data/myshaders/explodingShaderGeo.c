@@ -2,6 +2,7 @@
 #extension GL_EXT_geometry_shader4 : enable
 
 uniform float time;
+uniform float length = 100;
 
 vec3 GetNormal()
 {
@@ -21,20 +22,23 @@ vec3 explode(vec3 position, vec3 normal)
 
 
 void main() {
-    vec3 normal = GetNormal();
+    if (time < length){
+        vec3 normal = GetNormal();
 
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[0].xyz, normal), 1.0);
-    gl_FrontColor = gl_FrontColorIn[0];
-    EmitVertex();
-    normal.x = -normal.x;
-    gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[1].xyz, normal), 1.0);
-    gl_FrontColor = gl_FrontColorIn[1];
-    EmitVertex();
-    normal.y = -normal.y;
-    gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[2].xyz, normal), 1.0);
-    gl_FrontColor = gl_FrontColorIn[2];
-    EmitVertex();
-    EndPrimitive();
+        gl_Position = gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[0].xyz, normal), 1.0);
+        gl_FrontColor = gl_FrontColorIn[0];
+        EmitVertex();
+        normal.x = -normal.x;
+        gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[1].xyz, normal), 1.0);
+        gl_FrontColor = gl_FrontColorIn[1];
+        EmitVertex();
+        normal.y = -normal.y;
+        gl_Position =  gl_ModelViewProjectionMatrix * vec4(explode(gl_PositionIn[2].xyz, normal), 1.0);
+        gl_FrontColor = gl_FrontColorIn[2];
+        EmitVertex();
+        EndPrimitive();
+
+    }
 
 } 
 
