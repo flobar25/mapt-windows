@@ -135,32 +135,39 @@ void ofApp::setup(){
     towers.push_back(towers2);
     
 
+    // kinect players
     vector<ofxKinectSequencePlayer> players1;
-    for (int i = 0; i < PLAYERS1_COUNT; i++){
-        ofxKinectSequencePlayer kinectPlayer;
-        kinectPlayer.cropRight = 0;
-        kinectPlayer.cropLeft = 0;
-        kinectPlayer.cropUp = 0;
-        kinectPlayer.cropDown = 0;
-        kinectPlayer.cropNear = 100;
-        kinectPlayer.cropFar = 11500;
-        kinectPlayer.load(ofToDataPath("recording/1591109337000/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
-        players1.push_back(kinectPlayer);
+    ofxKinectSequencePlayer kinectPlayer1;
+    kinectPlayer1.cropRight = 0;
+    kinectPlayer1.cropLeft = 0;
+    kinectPlayer1.cropUp = 0;
+    kinectPlayer1.cropDown = 0;
+    kinectPlayer1.cropNear = 100;
+    kinectPlayer1.cropFar = 11500;
+    kinectPlayer1.load(ofToDataPath("recording/1591109337000/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+    players1.push_back(kinectPlayer1);
+    for (int i = 0; i < PLAYERS1_COUNT-1; i++){
+        ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
+        copiedPlayer->loadFromPlayer(kinectPlayer1);
+        players1.push_back(*copiedPlayer);
     }
     players.push_back(players1);
     currentPlayedIndices.push_back(-1);
     
     vector<ofxKinectSequencePlayer> players2;
+    ofxKinectSequencePlayer kinectPlayer2;
+    kinectPlayer2.cropRight = 220;
+    kinectPlayer2.cropLeft = 0;
+    kinectPlayer2.cropUp = 0;
+    kinectPlayer2.cropDown = 100;
+    kinectPlayer2.cropNear = 200;
+    kinectPlayer2.cropFar = 1000;
+    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg");
+    players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
-        ofxKinectSequencePlayer kinectPlayer;
-        kinectPlayer.cropRight = 220;
-        kinectPlayer.cropLeft = 0;
-        kinectPlayer.cropUp = 0;
-        kinectPlayer.cropDown = 100;
-        kinectPlayer.cropNear = 200;
-        kinectPlayer.cropFar = 1000;
-        kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg");
-        players2.push_back(kinectPlayer);
+        ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
+        copiedPlayer->loadFromPlayer(kinectPlayer2);
+        players2.push_back(*copiedPlayer);
     }
     players.push_back(players2);
     currentPlayedIndices.push_back(-1);

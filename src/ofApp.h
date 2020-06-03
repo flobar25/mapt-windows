@@ -84,7 +84,6 @@ private:
     
     // kinect
     ofxKinect kinect;
-    ofxKinectSequencePlayer kinectPlayer;
     
     // towers
     vector<vector<Tower>> towers;

@@ -10,7 +10,6 @@ enum EffectType {
 
 class ofxKinectSequencePlayer  {
 public:
-    
     void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int s = 2){
         scale = 2;
         // load texture
@@ -23,13 +22,28 @@ public:
         int frameNumber = 0;
         string fileName = prefix + ofToString(frameNumber, numberWidth, '0') + "." + format;
         ofShortImage load;
+        frames = new vector<ofMesh>(); // TODO clear up that vector memory, but make sure no other player is referencing these frames
         while (ofFile::doesFileExist(fileName)){
             load.load(fileName);
-            frames.push_back(convertToMesh(load.getPixels()));
+            frames->push_back(convertToMesh(load.getPixels()));
             frameNumber++;
             fileName = prefix + ofToString(frameNumber, numberWidth, '0') + "." + format;
         }
-        
+        initShaders();
+    }
+    
+    void loadFromPlayer(ofxKinectSequencePlayer& player) {
+        frames = player.frames;
+        cropRight = player.cropRight;
+        cropLeft = player.cropLeft;
+        cropUp = player.cropUp;
+        cropDown = player.cropDown;
+        cropNear = player.cropNear;
+        cropFar = player.cropFar;
+        initShaders();
+    }
+    
+    void initShaders() {
         // setup shaders
         stretchShader.setGeometryInputType(GL_POINTS);
         stretchShader.setGeometryOutputType(GL_LINE_STRIP);
@@ -43,7 +57,7 @@ public:
     }
     
     ofMesh getImage(int frameNumber){
-        return frames.at(frameNumber % frames.size());
+        return frames->at(frameNumber % frames->size());
     }
     
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
@@ -53,7 +67,6 @@ public:
         int step = 2;
         for(int y = cropUp; y < kinectHeight - cropDown; y += step) {
             for(int x = cropLeft; x < kinectWidth - cropRight; x += step) {
-//                ofLog(ofLogLevel::OF_LOG_NOTICE, "loading " + ofToString(x) + "," + ofToString(y)) ;
                 auto distance = depthPixelsRaw[y * kinectWidth + x];
                 auto distance2 = depthPixelsRaw[(y+step) * kinectWidth + x];
                 if(distance > cropNear && distance < cropFar && distance2 > cropNear && distance2 < cropFar) {
@@ -108,20 +121,13 @@ public:
         // the projected points are 'upside down' and 'backwardss'
         ofScale(1, -1, -1);
         ofTranslate(position.x, -position.y, -position.z);
-//        ofRotateXDeg(orientationEulerDeg.x);
-//        ofRotateYDeg(-orientationEulerDeg.y);
-//        ofRotateZDeg(-orientationEulerDeg.z);
         float angle;
         float x;
         float y;
         float z;
         quaternion.getRotate(angle, x, y, z);
         ofRotateDeg(angle, x, -y, -z);
-//        ofTranslate(500, -500, -500);
         ofTranslate(-150, -300, -1000);
-//
-//        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z);
-//        ofTranslate(-150 + position.x, -300 - position.y, -1000 - position.z); // center the points a bit
         
         auto time = currentFrame - effectStartFrame;
         ofMesh currentMesh = ofBoxPrimitive(100,100,100).getMesh();
@@ -216,7 +222,7 @@ public:
     int scale;
     
 private:
-    vector<ofMesh> frames;
+    vector<ofMesh>* frames;
     int currentFrame = 0;
     int currentPlayedFrame = 0;
     int kinectHeight;
