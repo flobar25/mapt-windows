@@ -14,7 +14,7 @@ int TOWER_MIN_WIDTH = 150;
 int TOWER_MAX_WIDTH = 400;
 int TOWER_MIN_LENGTH = 150;
 int TOWER_MAX_LENGTH = 400;
-int PLAYERS1_COUNT = 10;
+int PLAYERS1_COUNT = 3;
 int PLAYERS2_COUNT = 10;
 ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 100);
 ofColor TOWER_COLOR_1 = ofColor(225, 202, 232);
@@ -138,13 +138,13 @@ void ofApp::setup(){
     vector<ofxKinectSequencePlayer> players1;
     for (int i = 0; i < PLAYERS1_COUNT; i++){
         ofxKinectSequencePlayer kinectPlayer;
-        kinectPlayer.cropRight = 220;
+        kinectPlayer.cropRight = 0;
         kinectPlayer.cropLeft = 0;
         kinectPlayer.cropUp = 0;
-        kinectPlayer.cropDown = 100;
-        kinectPlayer.cropNear = 200;
-        kinectPlayer.cropFar = 1000;
-        kinectPlayer.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
+        kinectPlayer.cropDown = 0;
+        kinectPlayer.cropNear = 100;
+        kinectPlayer.cropFar = 11500;
+        kinectPlayer.load(ofToDataPath("recording/1591109337000/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg");
         players1.push_back(kinectPlayer);
     }
     players.push_back(players1);
@@ -203,9 +203,13 @@ void ofApp::update(){
         ofSetWindowTitle(strm.str());
 //    }
     
+    if (kinectActive) {
+        updateKinect();
+        return;
+    }
+    
     if (started) {
         cam.update();
-        updateKinect();
         updatePlayers();
         updateTowers();
     }
@@ -213,6 +217,16 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+
+    
+    if (kinectActive){
+        drawKinect();
+        if (kinectRecordingActive) {
+            kinectRecorder.addFrame(kinect.getRawDepthPixels());
+        }
+        return;
+    }
+    
     if (midiPlayerActive) {
         for (auto midiMessage : midiPlayer.getNextMidiMessages()) {
             newMidiMessage(midiMessage);
@@ -225,8 +239,7 @@ void ofApp::draw(){
     cam.begin();
     ofClear(0,0,0,255);
     ofBackground(BACKGROUND_COLOR_1);
-    
-    drawKinect();
+
     drawTowers();
     drawPlayers();
     
@@ -251,9 +264,6 @@ void ofApp::draw(){
         recorder.addFrame(screenCapture);
     }
     
-    if (kinectRecordingActive) {
-        kinectRecorder.addFrame(kinect.getRawDepthPixels());
-    }
     
     if (debugMode) {
         ofDrawBitmapString(debugMessage(), 20, 652);
@@ -314,6 +324,18 @@ void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
     if (midiRecordingActive){
         midiRecorder.addMidiFrame(ofGetFrameNum() - midiFrameStart, midiMessage);
     }
+    
+    switch (midiMessage.channel) {
+        case 1:
+            //record
+            if (midiMessage.status == MIDI_NOTE_ON){
+                toggleKinect();
+                toggleKinectRecording();
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 void ofApp::captureScreen(){
@@ -326,20 +348,32 @@ void ofApp::initKinect(){
     kinect.init();
     kinect.open();
     kinect.setCameraTiltAngle(0);
+    
+    // print the intrinsic IR sensor values
+    if(kinect.isConnected()) {
+        ofLogNotice() << "sensor-emitter dist: " << kinect.getSensorEmitterDistance() << "cm";
+        ofLogNotice() << "sensor-camera dist:  " << kinect.getSensorCameraDistance() << "cm";
+        ofLogNotice() << "zero plane pixel size: " << kinect.getZeroPlanePixelSize() << "mm";
+        ofLogNotice() << "zero plane dist: " << kinect.getZeroPlaneDistance() << "mm";
+    }
+    
 }
 
 void ofApp::updateKinect() {
     if (kinectActive){
+        ofBackground(0, 0, 0);
         kinect.update();
     }
 }
 
 void ofApp::drawKinect() {
 
+    
     if (kinectActive){
+        cam2.begin();
         ofSetBackgroundColor(0);
         ofSetColor(255);
-        auto mesh = kinectPlayer.convertToMesh(kinect.getRawDepthPixels());
+        auto mesh = ofxKinectSequencePlayer::convertToMeshWithoutCropping(kinect.getRawDepthPixels(), kinectWidth, kinectHeight);
         glPointSize(1);
         ofPushMatrix();
         // the projected points are 'upside down' and 'backwards'
@@ -349,6 +383,7 @@ void ofApp::drawKinect() {
         mesh.drawVertices();
         ofDisableDepthTest();
         ofPopMatrix();
+        cam2.end();
     }
 }
 

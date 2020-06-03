@@ -49,9 +49,11 @@ public:
     ofMesh convertToMesh(ofShortPixels& depthPixelsRaw){
         ofMesh mesh;
         
+        ofLog(ofLogLevel::OF_LOG_NOTICE, "loading frame" + ofToString(loadedFrame++)) ;
         int step = 2;
         for(int y = cropUp; y < kinectHeight - cropDown; y += step) {
             for(int x = cropLeft; x < kinectWidth - cropRight; x += step) {
+//                ofLog(ofLogLevel::OF_LOG_NOTICE, "loading " + ofToString(x) + "," + ofToString(y)) ;
                 auto distance = depthPixelsRaw[y * kinectWidth + x];
                 auto distance2 = depthPixelsRaw[(y+step) * kinectWidth + x];
                 if(distance > cropNear && distance < cropFar && distance2 > cropNear && distance2 < cropFar) {
@@ -70,6 +72,23 @@ public:
                     } else {
                         mesh.addColor(ofColor(255));
                     }
+                }
+            }
+        }
+        
+        return mesh;
+    }
+    
+    static ofMesh convertToMeshWithoutCropping(ofShortPixels& depthPixelsRaw, int kinectWidth, int kinectHeight){
+        ofMesh mesh;
+        
+        int step = 2;
+        for(int y = 0; y < kinectHeight; y += step) {
+            for(int x = 0; x < kinectWidth; x += step) {
+                auto distance = depthPixelsRaw[y * kinectWidth + x];
+                if (distance > 200 && distance < 2000) {
+                        mesh.addVertex(ofPoint(x, y, distance));
+                        mesh.addColor(ofColor(255));
                 }
             }
         }
@@ -222,6 +241,6 @@ private:
     
     // rotation
     ofQuaternion quaternion;
-    
+    int loadedFrame = 0;
     
 };

@@ -73,6 +73,7 @@ private:
     
     // camera
     MyCamera cam;
+    ofEasyCam cam2;
     
     // recording
     ofxImageSequenceRecorder recorder;
