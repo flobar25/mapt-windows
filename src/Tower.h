@@ -58,7 +58,7 @@ public:
         shader.setUniform3f("displacement", displacement);
         shader.setUniform1i("reflection", reflection ? 1 : 0);
         shader.setUniform3f("reflectionDisplacement", reflectionDisplacement);
-        shader.setUniform4f("reflectionColor", glm::vec4(reflectionColor.r, reflectionColor.g, reflectionColor.b, reflectionColor.a));
+        shader.setUniform4f("reflectionColor", glm::vec4(reflectionColor.r/255.0, reflectionColor.g/255.0, reflectionColor.b/255.0, reflectionColor.a/255.0));
         mesh.draw();
         shader.end();
     }

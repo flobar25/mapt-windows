@@ -16,11 +16,13 @@ int TOWER_MIN_LENGTH = 150;
 int TOWER_MAX_LENGTH = 400;
 int PLAYERS1_COUNT = 3;
 int PLAYERS2_COUNT = 10;
-ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 100);
-ofColor TOWER_COLOR_1 = ofColor(225, 202, 232);
-ofColor TOWER_REFLECTION_COLOR_1 = ofColor(0, 202, 0, 0.5);
-ofColor TOWER_COLOR_2 = ofColor(0, 202, 232);
-ofColor TOWER_REFLECTION_COLOR_2 = ofColor(0, 0, 202, 0.5);
+ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 50);
+ofColor TOWER_COLOR_1 = ofColor(213, 216, 247);
+ofColor TOWER_REFLECTION_COLOR_1 = ofColor(213, 216, 247, 30);
+ofColor TOWER_COLOR_2 = ofColor(135, 202, 232);
+ofColor TOWER_REFLECTION_COLOR_2 = ofColor(135, 202, 232, 30);
+
+
 
 bool debugMode = true;
 bool started = false;
@@ -143,8 +145,8 @@ void ofApp::setup(){
     kinectPlayer1.cropUp = 0;
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
-    kinectPlayer1.cropFar = 11500;
-    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 2, 15);
+    kinectPlayer1.cropFar = 2000;
+    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 15);
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -162,7 +164,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 2, 15);
+    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 15);
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -186,6 +188,7 @@ void ofApp::setup(){
     
     // other things
     ofEnableAlphaBlending();
+//    ofEnableSmoothing();
     ofEnableDepthTest();
     ofSetFrameRate(30);
     ofDisableArbTex();

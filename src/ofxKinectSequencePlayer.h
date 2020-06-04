@@ -10,7 +10,7 @@ enum EffectType {
 
 class ofxKinectSequencePlayer  {
 public:
-    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int s = 2, int maxFrames = 10000){
+    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int startFrame = 0, int endFrame = 10000, int s = 2){
         scale = 2;
         // load texture
         texture.load(imagePath);
@@ -19,11 +19,11 @@ public:
         // load/generate mesh for each frame
         kinectHeight = height;
         kinectWidth = width;
-        int frameNumber = 0;
+        int frameNumber = startFrame;
         string fileName = prefix + ofToString(frameNumber, numberWidth, '0') + "." + format;
         ofShortImage load;
         frames = new vector<ofMesh>(); // TODO clear up that vector memory, but make sure no other player is referencing these frames
-        while (ofFile::doesFileExist(fileName) && frames->size() < maxFrames){
+        while (ofFile::doesFileExist(fileName) && frameNumber < endFrame){
             load.load(fileName);
             frames->push_back(convertToMesh(load.getPixels()));
             frameNumber++;

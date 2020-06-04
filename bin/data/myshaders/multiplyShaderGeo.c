@@ -57,6 +57,7 @@ void main() {
             p0.z += reflectionDisplacement.z;
             gl_Position = gl_ModelViewProjectionMatrix * vec4(p0, 1.0);
             gl_FrontColor = reflectionColor;
+//            gl_FrontColor.a = 0.5;
             EmitVertex();
 
             p1.x += reflectionDisplacement.x;
@@ -64,6 +65,7 @@ void main() {
             p1.z += reflectionDisplacement.z;
             gl_Position = gl_ModelViewProjectionMatrix * vec4(p1, 1.0);
             gl_FrontColor = reflectionColor;
+//            gl_FrontColor.a = 0.5;
             EmitVertex();
             EndPrimitive();
         }
