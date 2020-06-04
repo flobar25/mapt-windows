@@ -63,6 +63,10 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
+    //midi handling
+    void handleCamera(ofxMidiMessage& eventArgs);
+    void handlePlayers(ofxMidiMessage& eventArgs);
+    
 
     
 private:

@@ -136,7 +136,7 @@ void ofApp::setup(){
     }
     towers.push_back(towers2);
     
-
+    
     // kinect players
     vector<ofxKinectSequencePlayer> players1;
     ofxKinectSequencePlayer kinectPlayer1;
@@ -146,7 +146,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 2000;
-    kinectPlayer1.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 15);
+    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 500);
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -164,7 +164,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 15);
+    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 100);
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -172,6 +172,25 @@ void ofApp::setup(){
         players2.push_back(*copiedPlayer);
     }
     players.push_back(players2);
+    currentPlayedIndices.push_back(-1);
+    
+    
+    vector<ofxKinectSequencePlayer> players3;
+    ofxKinectSequencePlayer kinectPlayer3;
+    kinectPlayer3.cropRight = 220;
+    kinectPlayer3.cropLeft = 0;
+    kinectPlayer3.cropUp = 0;
+    kinectPlayer3.cropDown = 100;
+    kinectPlayer3.cropNear = 200;
+    kinectPlayer3.cropFar = 1000;
+    kinectPlayer3.load(ofToDataPath("recording/walk1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 100);
+    players2.push_back(kinectPlayer2);
+    for (int i = 0; i < PLAYERS2_COUNT; i++){
+        ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
+        copiedPlayer->loadFromPlayer(kinectPlayer3);
+        players3.push_back(*copiedPlayer);
+    }
+    players.push_back(players3);
     currentPlayedIndices.push_back(-1);
     
     
@@ -188,7 +207,7 @@ void ofApp::setup(){
     
     // other things
     ofEnableAlphaBlending();
-//    ofEnableSmoothing();
+    //    ofEnableSmoothing();
     ofEnableDepthTest();
     ofSetFrameRate(30);
     ofDisableArbTex();
@@ -206,12 +225,12 @@ void ofApp::exit(){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-//    if (debugMode) {
-        // show the framerate on window title
-        std::stringstream strm;
-        strm << "fps: " << ofGetFrameRate();
-        ofSetWindowTitle(strm.str());
-//    }
+    //    if (debugMode) {
+    // show the framerate on window title
+    std::stringstream strm;
+    strm << "fps: " << ofGetFrameRate();
+    ofSetWindowTitle(strm.str());
+    //    }
     
     if (kinectActive) {
         updateKinect();
@@ -227,7 +246,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-
+    
     
     if (kinectActive){
         drawKinect();
@@ -250,7 +269,7 @@ void ofApp::draw(){
     //ofClear(0,0,0,255);
     ofEnableAlphaBlending();
     ofBackground(BACKGROUND_COLOR_1);
-
+    
     drawTowers();
     drawPlayers();
     
@@ -296,10 +315,10 @@ void ofApp::keyPressed(int key) {
         case '-': started = !started; break;
         case 'j': cam.slowMoveToRandomPosition(); break;
         case 'k': cam.fastMoveToRandomPosition(); break;
-//        case '`': sePlayertEffect(EffectType::NONE); break;
-//        case '1': players1[currentPlayedFace].setEffect(EffectType::STRETCH); break;
-//        case '2': players1[currentPlayedFace].setEffect(EffectType::STRIPS); break;
-//        case '3': players1[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
+            //        case '`': sePlayertEffect(EffectType::NONE); break;
+            //        case '1': players1[currentPlayedFace].setEffect(EffectType::STRETCH); break;
+            //        case '2': players1[currentPlayedFace].setEffect(EffectType::STRIPS); break;
+            //        case '3': players1[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
         case '4': toggleTowersMove(); break;
         default: break;
     }
@@ -338,6 +357,15 @@ void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
     
     switch (midiMessage.channel) {
         case 1:
+            started = true;
+            break;
+        case 2:
+            handleCamera(midiMessage);
+            break;
+        case 3:
+            handlePlayers(midiMessage);
+            break;
+        case 16:
             //record
             if (midiMessage.status == MIDI_NOTE_ON){
                 toggleKinect();
@@ -346,6 +374,84 @@ void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
             break;
         default:
             break;
+    }
+}
+
+void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
+    if (midiMessage.status == MIDI_NOTE_ON){
+        switch (midiMessage.pitch) {
+            case 0:
+                nextPlayer(0);
+                break;
+            case 1:
+                setPlayerEffect(0, currentPlayedIndices[0], EffectType::INVISIBLE);
+                break;
+            case 2:
+                setPlayerEffect(0, currentPlayedIndices[0], EffectType::STRIPS);
+                break;
+            case 3:
+                setPlayerEffect(0, currentPlayedIndices[0], EffectType::STRETCH);
+                break;
+            case 4:
+                setPlayerEffect(0, currentPlayedIndices[0], EffectType::EXPLOSION);
+                break;
+            case 5:
+                setPlayerEffect(0, currentPlayedIndices[0], EffectType::NONE);
+                break;
+            case 12:
+                nextPlayer(1);
+                break;
+            case 13:
+                setPlayerEffect(1, currentPlayedIndices[1], EffectType::INVISIBLE);
+                break;
+            case 14:
+                setPlayerEffect(1, currentPlayedIndices[1], EffectType::STRIPS);
+                break;
+            case 15:
+                setPlayerEffect(1, currentPlayedIndices[1], EffectType::STRETCH);
+                break;
+            case 16:
+                setPlayerEffect(1, currentPlayedIndices[1], EffectType::EXPLOSION);
+                break;
+            case 17:
+                setPlayerEffect(1, currentPlayedIndices[1], EffectType::NONE);
+                break;
+            case 24:
+                nextPlayer(2);
+                break;
+            case 25:
+                setPlayerEffect(2, currentPlayedIndices[2], EffectType::INVISIBLE);
+                break;
+            case 26:
+                setPlayerEffect(2, currentPlayedIndices[2], EffectType::STRIPS);
+                break;
+            case 27:
+                setPlayerEffect(2, currentPlayedIndices[2], EffectType::STRETCH);
+                break;
+            case 28:
+                setPlayerEffect(2, currentPlayedIndices[2], EffectType::EXPLOSION);
+                break;
+            case 29:
+                setPlayerEffect(2, currentPlayedIndices[2], EffectType::NONE);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void ofApp::handleCamera(ofxMidiMessage &midiMessage){
+    if (midiMessage.status == MIDI_NOTE_ON){
+        switch (midiMessage.pitch) {
+            case 0:
+                cam.slowMoveToRandomPosition();
+                break;
+            case 1:
+                cam.fastMoveToRandomPosition();
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -378,7 +484,7 @@ void ofApp::updateKinect() {
 }
 
 void ofApp::drawKinect() {
-
+    
     
     if (kinectActive){
         cam2.begin();
@@ -450,9 +556,9 @@ void ofApp::drawPlayers(){
 void ofApp::nextPlayer(int playerGroupIdx){
     int currentPlayerIdx = currentPlayedIndices[playerGroupIdx];
     
-    if (currentPlayerIdx >= 0) {
-        setPlayerEffect(playerGroupIdx, currentPlayerIdx, EffectType::EXPLOSION);
-    }
+//    if (currentPlayerIdx >= 0) {
+//        setPlayerEffect(playerGroupIdx, currentPlayerIdx, EffectType::EXPLOSION);
+//    }
     
     currentPlayerIdx++;
     if (currentPlayerIdx == players[playerGroupIdx].size()) {
