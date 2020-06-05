@@ -10,8 +10,9 @@ enum EffectType {
 
 class ofxKinectSequencePlayer  {
 public:
-    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int startFrame = 0, int endFrame = 10000, int s = 2){
-        scale = 2;
+    void load(string prefix, string format, int height, int width, int numberWidth, string imagePath, int startFrame = 0, int endFrame = 10000, ofVec3f translateVec = ofVec3f(-150, -300, -1000), int s = 2){
+        this->scale = s;
+        this->translateVec = translateVec;
         // load texture
         texture.load(imagePath);
         texture.resize(width, height);
@@ -40,6 +41,7 @@ public:
         cropDown = player.cropDown;
         cropNear = player.cropNear;
         cropFar = player.cropFar;
+        translateVec = player.translateVec;
         initShaders();
     }
     
@@ -113,6 +115,10 @@ public:
         currentFrame++;
     }
     
+    void reset(){
+        currentFrame = 0;
+    }
+    
     void draw() {
         glPointSize(1);
         ofSetLineWidth(1);
@@ -127,7 +133,7 @@ public:
         float z;
         quaternion.getRotate(angle, x, y, z);
         ofRotateDeg(angle, x, -y, -z);
-        ofTranslate(-150, -300, -1000);
+        ofTranslate(translateVec.x, translateVec.y, translateVec.z);
         
         auto time = currentFrame - effectStartFrame;
         ofMesh currentMesh = ofBoxPrimitive(100,100,100).getMesh();
@@ -230,6 +236,7 @@ private:
     int intensityThreshold = 100;
     ofImage texture;
     ofVec3f position = ofVec3f(0,0,0);
+    ofVec3f translateVec;
     
     // general effects
     EffectType currentEffect = EffectType::INVISIBLE;

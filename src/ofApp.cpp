@@ -146,7 +146,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 2000;
-    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 50);
+    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 8000, ofVec3f(-200, -300, -900));
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -164,7 +164,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 50);
+    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 8000, ofVec3f(-400, -300, -1000));
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -177,13 +177,13 @@ void ofApp::setup(){
     
     vector<ofxKinectSequencePlayer> players3;
     ofxKinectSequencePlayer kinectPlayer3;
-    kinectPlayer3.cropRight = 220;
+    kinectPlayer3.cropRight = 0;
     kinectPlayer3.cropLeft = 0;
     kinectPlayer3.cropUp = 0;
-    kinectPlayer3.cropDown = 100;
-    kinectPlayer3.cropNear = 200;
-    kinectPlayer3.cropFar = 1000;
-    kinectPlayer3.load(ofToDataPath("recording/walk1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 50);
+    kinectPlayer3.cropDown = 0;
+    kinectPlayer3.cropNear = 0;
+    kinectPlayer3.cropFar = 2000;
+    kinectPlayer3.load(ofToDataPath("recording/dog2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/red1.jpg", 1920, 2020);
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -309,6 +309,7 @@ void ofApp::keyPressed(int key) {
         case 's': toggleKinectRecording(); break;
         case 'd': nextPlayer(0); break;
         case 'f': nextPlayer(1); break;
+        case 'g': nextPlayer(2); break;
         case 'z': toggleDebugMode(); break;
         case 'i': toggleMidiRecording(); break;
         case 'o': toggleMidiPlayer(); break;
@@ -467,6 +468,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
                 break;
             case 30:
                 setPlayerGroupEffect(2, EffectType::INVISIBLE);
+                break;
+            case 31:
+                resetPlayerGroup(2);
                 break;
             default:
                 break;
@@ -641,6 +645,12 @@ void ofApp::setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect
 void ofApp::setPlayerGroupEffect(int playerGroupIdx, EffectType effect){
     for (auto it = players[playerGroupIdx].begin(); it != players[playerGroupIdx].end(); it++){
         it->setEffect(effect);
+    }
+}
+
+void ofApp::resetPlayerGroup(int playerGroupIdx){
+    for (auto it = players[playerGroupIdx].begin(); it != players[playerGroupIdx].end(); it++){
+        it->reset();
     }
 }
 

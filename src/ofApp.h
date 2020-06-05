@@ -49,6 +49,7 @@ public:
     void nextPlayer(int playerGroupIdx);
     void setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect);
     void setPlayerGroupEffect(int playerGroupIdx, EffectType effect);
+    void resetPlayerGroup(int playerGroupIdx);
     
     void toggleDebugMode();
     void keyPressed(int key);
