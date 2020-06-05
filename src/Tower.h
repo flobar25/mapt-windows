@@ -49,11 +49,13 @@ public:
         if (move) {
             currentMoveFrame++;
         }
+
         ofSetLineWidth(2);
         shader.begin();
         shader.setUniform1i("count", floorCount);
         shader.setUniform1i("height", floorHeight);
-        shader.setUniform1i("currentFrame", currentMoveFrame);
+        shader.setUniform1i("currentMoveFrame", currentMoveFrame);
+        shader.setUniform1i("currentRise", currentRise);
         shader.setUniform1f("displacementRate", displacementRate);
         shader.setUniform3f("displacement", displacement);
         shader.setUniform1i("reflection", reflection ? 1 : 0);
@@ -71,6 +73,10 @@ public:
         }
     }
     
+    void updateRise(int cc) {
+        currentRise = cc;
+    }
+    
 private:
     int floorCount;
     int floorHeight;
@@ -83,6 +89,9 @@ private:
     ofMesh mesh;
     int move = 0;
     int currentMoveFrame = 0;
+    bool rise = false;
+    int currentRise = 0;
+
     bool reflection;
     ofVec3f reflectionDisplacement;
     ofColor reflectionColor;

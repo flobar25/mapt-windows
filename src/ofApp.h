@@ -48,7 +48,7 @@ public:
     void drawPlayers();
     void nextPlayer(int playerGroupIdx);
     void setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect);
-    
+    void setPlayerGroupEffect(int playerGroupIdx, EffectType effect);
     
     void toggleDebugMode();
     void keyPressed(int key);
@@ -66,6 +66,8 @@ public:
     //midi handling
     void handleCamera(ofxMidiMessage& eventArgs);
     void handlePlayers(ofxMidiMessage& eventArgs);
+    void handleEffects(ofxMidiMessage& eventArgs);
+    void handleTowers(ofxMidiMessage& eventArgs);
     
 
     

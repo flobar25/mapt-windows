@@ -1,7 +1,8 @@
 #version 120
 #extension GL_EXT_geometry_shader4 : enable
 
-uniform int currentFrame;
+uniform int currentMoveFrame;
+uniform int currentRise;
 uniform int count;
 uniform int height;
 uniform float displacementRate;
@@ -18,13 +19,24 @@ float noise(float p){
 }
 
 void main() {
-    for (int i = 0; i < count; i++) {
-        float moveX = noise(i) * currentFrame;
-        float moveZ = noise(i + 15) * currentFrame;
-        bool displace = rand(i) > (1.0 - displacementRate);
+    int localCount = count;
+    if (currentRise == 0){
+        localCount = 1;
+    }
+    
+    float heightRatio = currentRise / 127.0;
+//    if (heightRatio > 1){
+//        heightRatio = 2.0 - heightRatio;
+//    }
+    
+    for (int i = 0; i < localCount; i++) {
+        float moveX = noise(i) * currentMoveFrame;
+        float moveZ = noise(i + 15) * currentMoveFrame;
+        bool displace = rand(i) > (1.0 - currentMoveFrame);
+
         
         vec3 p0 = gl_PositionIn[0].xyz;
-        p0.y += i * height;
+        p0.y += i * height * heightRatio;
         if (displace){
             p0.x += displacement.x;
             p0.y += displacement.y;
@@ -37,7 +49,7 @@ void main() {
         EmitVertex();
         
         vec3 p1 = gl_PositionIn[1].xyz;
-        p1.y += i * height;
+        p1.y += i * height * heightRatio;
         if (displace){
             p1.x += displacement.x;
             p1.y += displacement.y;
@@ -57,7 +69,6 @@ void main() {
             p0.z += reflectionDisplacement.z;
             gl_Position = gl_ModelViewProjectionMatrix * vec4(p0, 1.0);
             gl_FrontColor = reflectionColor;
-//            gl_FrontColor.a = 0.5;
             EmitVertex();
 
             p1.x += reflectionDisplacement.x;
@@ -65,7 +76,6 @@ void main() {
             p1.z += reflectionDisplacement.z;
             gl_Position = gl_ModelViewProjectionMatrix * vec4(p1, 1.0);
             gl_FrontColor = reflectionColor;
-//            gl_FrontColor.a = 0.5;
             EmitVertex();
             EndPrimitive();
         }

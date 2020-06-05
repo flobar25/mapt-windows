@@ -15,7 +15,7 @@ int TOWER_MAX_WIDTH = 400;
 int TOWER_MIN_LENGTH = 150;
 int TOWER_MAX_LENGTH = 400;
 int PLAYERS1_COUNT = 3;
-int PLAYERS2_COUNT = 10;
+int PLAYERS2_COUNT = 3;
 ofColor BACKGROUND_COLOR_1 = ofColor(0, 0, 50);
 ofColor TOWER_COLOR_1 = ofColor(213, 216, 247);
 ofColor TOWER_REFLECTION_COLOR_1 = ofColor(213, 216, 247, 30);
@@ -146,7 +146,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 2000;
-    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 500);
+    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 50);
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -164,7 +164,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 100);
+    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 50);
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -183,7 +183,7 @@ void ofApp::setup(){
     kinectPlayer3.cropDown = 100;
     kinectPlayer3.cropNear = 200;
     kinectPlayer3.cropFar = 1000;
-    kinectPlayer3.load(ofToDataPath("recording/walk1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 100);
+    kinectPlayer3.load(ofToDataPath("recording/walk1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 50);
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -365,6 +365,12 @@ void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
         case 3:
             handlePlayers(midiMessage);
             break;
+        case 4:
+            handleEffects(midiMessage);
+            break;
+        case 5:
+            handleTowers(midiMessage);
+            break;
         case 16:
             //record
             if (midiMessage.status == MIDI_NOTE_ON){
@@ -374,6 +380,25 @@ void ofApp::newMidiMessage(ofxMidiMessage& midiMessage){
             break;
         default:
             break;
+    }
+}
+
+void ofApp::handleTowers(ofxMidiMessage &midiMessage){
+    if (midiMessage.status == MIDI_CONTROL_CHANGE){
+        switch (midiMessage.control) {
+            case 14:
+                for (auto it = towers[0].begin(); it!=towers[0].end(); it++){
+                    it->updateRise(midiMessage.value);
+                }
+                break;
+            case 15:
+                for (auto it = towers[1].begin(); it!=towers[1].end(); it++){
+                    it->updateRise(midiMessage.value);
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -398,6 +423,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
             case 5:
                 setPlayerEffect(0, currentPlayedIndices[0], EffectType::NONE);
                 break;
+            case 6:
+                setPlayerGroupEffect(0, EffectType::INVISIBLE);
+                break;
             case 12:
                 nextPlayer(1);
                 break;
@@ -416,6 +444,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
             case 17:
                 setPlayerEffect(1, currentPlayedIndices[1], EffectType::NONE);
                 break;
+            case 18:
+                setPlayerGroupEffect(1, EffectType::INVISIBLE);
+                break;
             case 24:
                 nextPlayer(2);
                 break;
@@ -433,6 +464,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
                 break;
             case 29:
                 setPlayerEffect(2, currentPlayedIndices[2], EffectType::NONE);
+                break;
+            case 30:
+                setPlayerGroupEffect(2, EffectType::INVISIBLE);
                 break;
             default:
                 break;
@@ -453,6 +487,34 @@ void ofApp::handleCamera(ofxMidiMessage &midiMessage){
                 break;
         }
     }
+}
+
+void ofApp::handleEffects(ofxMidiMessage &midiMessage){
+    postGlitch.setFx(OFXPOSTGLITCH_CONVERGENCE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_GLOW, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SHAKER, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CUTSLIDER, false);
+    postGlitch.setFx(OFXPOSTGLITCH_TWIST, false);
+    postGlitch.setFx(OFXPOSTGLITCH_OUTLINE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_NOISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SLITSCAN_ROT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_SWELL, false);
+    postGlitch.setFx(OFXPOSTGLITCH_INVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_HIGHCONTRAST, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_BLUERAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_REDRAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_GREENRAISE, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_REDINVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_BLUEINVERT, false);
+    postGlitch.setFx(OFXPOSTGLITCH_CR_GREENINVERT, false);
+    
+    if (midiMessage.status == MIDI_NOTE_ON){
+        postGlitch.setFx(static_cast<ofxPostGlitchType>(midiMessage.pitch), true);
+    }  else if (midiMessage.status == MIDI_NOTE_OFF){
+        postGlitch.setFx(static_cast<ofxPostGlitchType>(midiMessage.pitch), false);
+    }
+
 }
 
 void ofApp::captureScreen(){
@@ -574,7 +636,13 @@ void ofApp::nextPlayer(int playerGroupIdx){
 
 void ofApp::setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect){
     players[playerGroupIdx][playerIdx].setEffect(effect);
-}	
+}
+
+void ofApp::setPlayerGroupEffect(int playerGroupIdx, EffectType effect){
+    for (auto it = players[playerGroupIdx].begin(); it != players[playerGroupIdx].end(); it++){
+        it->setEffect(effect);
+    }
+}
 
 
 void ofApp::toggleDebugMode() {
