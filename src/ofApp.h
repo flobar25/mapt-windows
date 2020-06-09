@@ -46,7 +46,7 @@ public:
     // kinect players
     void updatePlayers();
     void drawPlayers();
-    void nextPlayer(int playerGroupIdx);
+    void nextPlayer(int playerGroupIdx, bool reset = false);
     void setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect);
     void setPlayerGroupEffect(int playerGroupIdx, EffectType effect);
     void resetPlayerGroup(int playerGroupIdx);

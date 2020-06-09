@@ -42,6 +42,7 @@ public:
         cropNear = player.cropNear;
         cropFar = player.cropFar;
         translateVec = player.translateVec;
+        intensityThreshold = player.intensityThreshold;
         initShaders();
     }
     
@@ -226,6 +227,7 @@ public:
     int cropNear = 0;
     int cropFar = 1000;
     int scale;
+    int intensityThreshold = 100;
     
 private:
     vector<ofMesh>* frames;
@@ -233,7 +235,6 @@ private:
     int currentPlayedFrame = 0;
     int kinectHeight;
     int kinectWidth;
-    int intensityThreshold = 100;
     ofImage texture;
     ofVec3f position = ofVec3f(0,0,0);
     ofVec3f translateVec;

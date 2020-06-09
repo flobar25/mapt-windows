@@ -51,6 +51,10 @@ public:
         }
 
         ofSetLineWidth(2);
+        if (!visible) {
+            return;
+        }
+        
         shader.begin();
         shader.setUniform1i("count", floorCount);
         shader.setUniform1i("height", floorHeight);
@@ -77,6 +81,10 @@ public:
         currentRise = cc;
     }
     
+    void toggleVisible() {
+        visible = !visible;
+    }
+    
 private:
     int floorCount;
     int floorHeight;
@@ -91,6 +99,7 @@ private:
     int currentMoveFrame = 0;
     bool rise = false;
     int currentRise = 0;
+    bool visible = true;
 
     bool reflection;
     ofVec3f reflectionDisplacement;

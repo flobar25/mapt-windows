@@ -146,7 +146,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 2000;
-    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 0, 8000, ofVec3f(-200, -300, -900));
+    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 15, 80, ofVec3f(-200, -300, -900));
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -164,7 +164,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 0, 8000, ofVec3f(-400, -300, -1000));
+    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 15, 80, ofVec3f(-400, -300, -1000));
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -183,9 +183,10 @@ void ofApp::setup(){
     kinectPlayer3.cropDown = 0;
     kinectPlayer3.cropNear = 0;
     kinectPlayer3.cropFar = 2000;
-    kinectPlayer3.load(ofToDataPath("recording/dog2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/red1.jpg", 1920, 2020);
-    players2.push_back(kinectPlayer2);
-    for (int i = 0; i < PLAYERS2_COUNT; i++){
+    kinectPlayer3.intensityThreshold = 50;
+    kinectPlayer3.load(ofToDataPath("recording/dog2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue2.jpg", 1920, 2020);
+    players3.push_back(kinectPlayer3);
+    for (int i = 0; i < 1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
         copiedPlayer->loadFromPlayer(kinectPlayer3);
         players3.push_back(*copiedPlayer);
@@ -401,6 +402,19 @@ void ofApp::handleTowers(ofxMidiMessage &midiMessage){
                 break;
         }
     }
+    if (midiMessage.status == MIDI_NOTE_ON){
+        switch (midiMessage.pitch) {
+            case 0:
+                for (auto it = towers.begin(); it != towers.end(); it++){
+                    for (auto subIt = it->begin(); subIt != it->end(); subIt++){
+                        subIt->toggleVisible();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
@@ -427,6 +441,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
             case 6:
                 setPlayerGroupEffect(0, EffectType::INVISIBLE);
                 break;
+            case 7:
+                resetPlayerGroup(0);
+                break;
             case 12:
                 nextPlayer(1);
                 break;
@@ -449,7 +466,7 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
                 setPlayerGroupEffect(1, EffectType::INVISIBLE);
                 break;
             case 24:
-                nextPlayer(2);
+                nextPlayer(2, true); // specific case for the basset
                 break;
             case 25:
                 setPlayerEffect(2, currentPlayedIndices[2], EffectType::INVISIBLE);
@@ -619,7 +636,7 @@ void ofApp::drawPlayers(){
 }
 
 
-void ofApp::nextPlayer(int playerGroupIdx){
+void ofApp::nextPlayer(int playerGroupIdx, bool reset ){
     int currentPlayerIdx = currentPlayedIndices[playerGroupIdx];
     
 //    if (currentPlayerIdx >= 0) {
@@ -631,11 +648,16 @@ void ofApp::nextPlayer(int playerGroupIdx){
         currentPlayerIdx = 0;
     }
     
+    if (reset) {
+        players[playerGroupIdx][currentPlayerIdx].reset();
+    }
+    
     setPlayerEffect(playerGroupIdx, currentPlayerIdx, EffectType::NONE);
     auto pos = (cam.getCurrentLookAt() - cam.getPosition()).normalize() * playerDistance + cam.getPosition();
     players[playerGroupIdx][currentPlayerIdx].setQuaternion(cam.getOrientationQuat());
     players[playerGroupIdx][currentPlayerIdx].setPosition(pos.x, pos.y, pos.z);
     currentPlayedIndices[playerGroupIdx] = currentPlayerIdx;
+    
 }
 
 void ofApp::setPlayerEffect(int playerGroupIdx, int playerIdx, EffectType effect){
@@ -653,6 +675,7 @@ void ofApp::resetPlayerGroup(int playerGroupIdx){
         it->reset();
     }
 }
+
 
 
 void ofApp::toggleDebugMode() {
