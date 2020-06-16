@@ -2,6 +2,7 @@
 #include <chrono>
 
 // input parameters
+int FRAME_RATE = 6;
 int RANDOM_SEED = 67859432679;
 int SPACE_WIDTH = 10000;
 int SPACE_LENGTH = 10000;
@@ -146,7 +147,7 @@ void ofApp::setup(){
     kinectPlayer1.cropDown = 0;
     kinectPlayer1.cropNear = 100;
     kinectPlayer1.cropFar = 2000;
-    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 15, 80, ofVec3f(-200, -300, -900));
+    kinectPlayer1.load(ofToDataPath("recording/dancesing2/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/orange1.jpg", 9, 800, ofVec3f(-200, -300, -900));
     players1.push_back(kinectPlayer1);
     for (int i = 0; i < PLAYERS1_COUNT-1; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -164,7 +165,7 @@ void ofApp::setup(){
     kinectPlayer2.cropDown = 100;
     kinectPlayer2.cropNear = 200;
     kinectPlayer2.cropFar = 1000;
-    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 15, 80, ofVec3f(-400, -300, -1000));
+    kinectPlayer2.load(ofToDataPath("recording/face1/kinect/frame_"), "png", kinectHeight, kinectWidth, 8, "images/blue1.jpg", 9, 800, ofVec3f(-400, -300, -1000));
     players2.push_back(kinectPlayer2);
     for (int i = 0; i < PLAYERS2_COUNT; i++){
         ofxKinectSequencePlayer* copiedPlayer = new ofxKinectSequencePlayer();
@@ -208,9 +209,9 @@ void ofApp::setup(){
     
     // other things
     ofEnableAlphaBlending();
-    //    ofEnableSmoothing();
+    ofEnableSmoothing();
     ofEnableDepthTest();
-    ofSetFrameRate(30);
+    ofSetFrameRate(FRAME_RATE);
     ofDisableArbTex();
 }
 
@@ -247,8 +248,6 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    
     if (kinectActive){
         drawKinect();
         if (kinectRecordingActive) {
@@ -464,6 +463,9 @@ void ofApp::handlePlayers(ofxMidiMessage &midiMessage){
                 break;
             case 18:
                 setPlayerGroupEffect(1, EffectType::INVISIBLE);
+                break;
+            case 19:
+                resetPlayerGroup(1);
                 break;
             case 24:
                 nextPlayer(2, true); // specific case for the basset
