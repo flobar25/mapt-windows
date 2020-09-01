@@ -120,6 +120,45 @@ public:
         currentFrame = 0;
     }
     
+    int size() {
+        return frames->size();
+    }
+    
+    void drawRandom(ofCamera cam) {
+        ofClear(255);
+        ofSetColor(ofColor::white);
+        glPointSize(1);
+        ofSetLineWidth(1);
+        ofPushMatrix();
+
+        // the projected points are 'upside down' and 'backwardss'
+        ofScale(1, -1, -1);
+        ofTranslate(position.x, -position.y, -position.z);
+        float angle;
+        float x;
+        float y;
+        float z;
+        quaternion.getRotate(angle, x, y, z);
+        ofRotateDeg(angle, x, -y, -z);
+        ofTranslate(translateVec.x, translateVec.y, translateVec.z);
+        
+
+        ofMesh currentMesh = getImage(currentFrame);
+        currentMesh.draw();
+        
+//        ofPolyline polyLine;
+//
+//        for (auto vertice : currentMesh.getVertices()){
+//            auto projectedCoordinate = cam.worldToScreen(vertice);
+//            polyLine.addVertex(projectedCoordinate.x, projectedCoordinate.y);
+//        }
+//
+//        polyLine.draw();
+
+        ofPopMatrix();
+    }
+    
+    
     void draw() {
         glPointSize(1);
         ofSetLineWidth(1);
@@ -218,6 +257,9 @@ public:
         }
     }
     
+    void setCurrentFrame(int i){
+        currentFrame = i;
+    }
     
     // crop
     int cropRight = 0;

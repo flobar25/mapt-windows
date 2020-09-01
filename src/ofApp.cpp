@@ -28,6 +28,7 @@ ofColor TOWER_REFLECTION_COLOR_2 = ofColor(135, 202, 232, 30);
 bool debugMode = true;
 bool started = false;
 bool recording = false;
+bool randomMode = false;
 
 // kinect cam
 bool kinectActive = false;
@@ -37,6 +38,7 @@ int kinectWidth = 640;
 int kinectHeight = 480;
 int kinectStep = 2;
 int numberWidth = 8;
+ofxKinectSequencePlayer* randomPlayer;
 
 // midi
 bool midiRecordingActive = false;
@@ -239,7 +241,7 @@ void ofApp::update(){
         return;
     }
     
-    if (started) {
+    if (started && !randomMode) {
         cam.update();
         updatePlayers();
         updateTowers();
@@ -266,12 +268,18 @@ void ofApp::draw(){
     
     fbo.begin();
     cam.begin();
+
     //ofClear(0,0,0,255);
     ofEnableAlphaBlending();
     ofBackground(BACKGROUND_COLOR_1);
     
-    drawTowers();
-    drawPlayers();
+    if (randomMode) {
+        randomPlayer->drawRandom(cam);
+        
+    } else {
+        drawTowers();
+        drawPlayers();
+    }
     
     if (debugMode) {
         ofDrawAxis(200);
@@ -321,6 +329,7 @@ void ofApp::keyPressed(int key) {
             //        case '2': players1[currentPlayedFace].setEffect(EffectType::STRIPS); break;
             //        case '3': players1[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
         case '4': toggleTowersMove(); break;
+        case 'b': displayRandomFrame(); break;
         default: break;
     }
     
@@ -637,6 +646,17 @@ void ofApp::drawPlayers(){
     }
 }
 
+void ofApp::displayRandomFrame(){
+    randomMode = true;
+    int playerGrpIdx = ofRandom(players.size() + 0.1);
+    int playerIdx = ofRandom(players[playerGrpIdx].size() + 0.1);
+    
+    randomPlayer = &(players[playerGrpIdx][playerIdx]);
+    randomPlayer->setPosition(0,0,0);
+    randomPlayer->setEffect(EffectType::STRIPS);
+    int frameIdx = ofRandom(randomPlayer->size() + 0.1);
+    randomPlayer->setCurrentFrame(frameIdx);
+}
 
 void ofApp::nextPlayer(int playerGroupIdx, bool reset ){
     int currentPlayerIdx = currentPlayedIndices[playerGroupIdx];
