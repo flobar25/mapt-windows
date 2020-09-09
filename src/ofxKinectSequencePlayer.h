@@ -124,23 +124,23 @@ public:
         return frames->size();
     }
     
-    void drawRandom(ofCamera cam) {
+    ofMesh drawRandom(ofCamera cam) {
         ofClear(255);
         ofSetColor(ofColor::white);
         glPointSize(1);
         ofSetLineWidth(1);
-        ofPushMatrix();
+        //ofPushMatrix();
 
         // the projected points are 'upside down' and 'backwardss'
-        ofScale(1, -1, -1);
-        ofTranslate(position.x, -position.y, -position.z);
-        float angle;
-        float x;
-        float y;
-        float z;
-        quaternion.getRotate(angle, x, y, z);
-        ofRotateDeg(angle, x, -y, -z);
-        ofTranslate(translateVec.x, translateVec.y, translateVec.z);
+//        ofScale(1, -1, -1);
+//        ofTranslate(position.x, -position.y, -position.z);
+//        float angle;
+//        float x;
+//        float y;
+//        float z;
+//        quaternion.getRotate(angle, x, y, z);
+//        ofRotateDeg(angle, x, -y, -z);
+//        ofTranslate(translateVec.x, translateVec.y, translateVec.z);
         
 
         ofMesh currentMesh = getImage(currentFrame);
@@ -155,9 +155,12 @@ public:
 //
 //        polyLine.draw();
 
-        ofPopMatrix();
+        //ofPopMatrix();
+        
+        return currentMesh;
     }
     
+
     
     void draw() {
         glPointSize(1);

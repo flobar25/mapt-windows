@@ -29,6 +29,7 @@ bool debugMode = true;
 bool started = false;
 bool recording = false;
 bool randomMode = false;
+bool saveRandomFrameFlag = false;
 
 // kinect cam
 bool kinectActive = false;
@@ -273,9 +274,9 @@ void ofApp::draw(){
     ofEnableAlphaBlending();
     ofBackground(BACKGROUND_COLOR_1);
     
+    ofMesh currentMesh;
     if (randomMode) {
-        randomPlayer->drawRandom(cam);
-        
+        currentMesh = randomPlayer->drawRandom(cam);
     } else {
         drawTowers();
         drawPlayers();
@@ -288,6 +289,24 @@ void ofApp::draw(){
     }
     cam.end();
     fbo.end();
+    
+    if (saveRandomFrameFlag) {
+        ofClear(255);
+        ofSetColor(ofColor::white);
+        ofPolyline polyLine;
+        for (auto vertice : currentMesh.getVertices()){
+            auto projectedCoordinate = cam.worldToScreen(vertice);
+            ofLog(ofLogLevel::OF_LOG_NOTICE, ofToString(projectedCoordinate));
+            polyLine.addVertex(projectedCoordinate.x, projectedCoordinate.y);
+        }
+        
+        ofBeginSaveScreenAsSVG("export"+ofToString(ofGetTimestampString())+".svg");
+        polyLine.draw();
+        ofEndSaveScreenAsSVG();
+        
+        saveRandomFrameFlag = false;
+    }
+    
     
     postGlitch.generateFx();
     ofSetColor(255);
@@ -330,6 +349,7 @@ void ofApp::keyPressed(int key) {
             //        case '3': players1[currentPlayedFace].setEffect(EffectType::EXPLOSION); break;
         case '4': toggleTowersMove(); break;
         case 'b': displayRandomFrame(); break;
+        case 'n': saveRandomFrame(); break;
         default: break;
     }
     
@@ -648,14 +668,18 @@ void ofApp::drawPlayers(){
 
 void ofApp::displayRandomFrame(){
     randomMode = true;
-    int playerGrpIdx = ofRandom(players.size() + 0.1);
-    int playerIdx = ofRandom(players[playerGrpIdx].size() + 0.1);
+    int playerGrpIdx = ofRandom(players.size());
+    int playerIdx = ofRandom(players[playerGrpIdx].size());
     
     randomPlayer = &(players[playerGrpIdx][playerIdx]);
     randomPlayer->setPosition(0,0,0);
     randomPlayer->setEffect(EffectType::STRIPS);
-    int frameIdx = ofRandom(randomPlayer->size() + 0.1);
+    int frameIdx = ofRandom(randomPlayer->size());
     randomPlayer->setCurrentFrame(frameIdx);
+}
+
+void ofApp::saveRandomFrame(){
+    saveRandomFrameFlag = true;
 }
 
 void ofApp::nextPlayer(int playerGroupIdx, bool reset ){

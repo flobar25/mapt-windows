@@ -51,6 +51,7 @@ public:
     void setPlayerGroupEffect(int playerGroupIdx, EffectType effect);
     void resetPlayerGroup(int playerGroupIdx);
     void displayRandomFrame();
+    void saveRandomFrame();
     
     void toggleDebugMode();
     void keyPressed(int key);
